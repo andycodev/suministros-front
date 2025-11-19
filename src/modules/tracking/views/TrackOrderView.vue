@@ -8,6 +8,7 @@
             <div class="flex gap-2">
                 <button class="btn-primary flex-1" @click="search">Buscar</button>
                 <button class="border rounded flex-1" @click="clear">Limpiar</button>
+                <button class="border rounded flex-1" @click="newOrder">Hacer nuevo pedido</button>
             </div>
 
             <OrderResult v-if="order" :order="order" />
@@ -20,7 +21,9 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import OrderResult from '../components/OrderResult.vue'
+import { useRouter } from 'vue-router'
 
+const router = useRouter()
 const query = ref('')
 const order = ref<any | null>(null)
 const queried = ref(false)
@@ -40,6 +43,10 @@ function clear() {
     query.value = ''
     order.value = null
     queried.value = false
+}
+
+function newOrder() {
+    router.push('/order')
 }
 </script>
 
