@@ -1,0 +1,3 @@
+<template>
+    Order View
+</template>

@@ -1,0 +1,3 @@
+<template>
+    Payment View
+</template>

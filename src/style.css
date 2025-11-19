@@ -1,0 +1,8 @@
+@import "tailwindcss/preflight";
+@import "tailwindcss/theme";
+@import "tailwindcss/utilities";
+
+/* Fix para HeadlessUI + Tailwind v4 */
+:focus {
+  outline: none;
+}
