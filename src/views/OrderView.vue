@@ -91,9 +91,9 @@
             {{ isPendingCreatePedido ? 'Realizando pedido...' : 'Realizar pedido' }}
           </button>
         </div>
-        <pre>
+        <!-- <pre>
           {{ pedidoPayload }}
-        </pre>
+        </pre> -->
       </div>
 
     </div>
@@ -133,31 +133,66 @@
         <div class="w-full max-w-3xl mx-auto space-y-3">
           <div v-if="isLoadingMaterialesPersona">Cargando materiales ...</div>
           <template v-else>
-            <div v-for="item in materiales" :key="item.id_material"
-              class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-all duration-200">
-              <div class="card-body p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+            <!-- Search Bar -->
+            <div class="sticky top-0 z-10 bg-white pb-2">
+              <div class="relative">
+                <input type="text" v-model="searchQuery" placeholder="Buscar materiales..."
+                  class="input input-bordered w-full pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-gray-400 absolute left-3 top-3" fill="none"
+                  viewBox="0 0 24 24" stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                </svg>
+              </div>
 
-                <!-- Info -->
-                <div>
-                  <h2 class="font-semibold text-lg">{{ item.nombre }}</h2>
-                  <p class="text-sm opacity-70 -mt-1">{{ item.descripcion }}</p>
-                  <p class="font-bold text-primary mt-1">S/. {{ item.precio }}</p>
+              <!-- Selected items counter -->
+              <div v-if="totalItems > 0" class="text-sm text-gray-500 mt-2 px-1">
+                {{ filteredMaterials.length }} materiales encontrados |
+                <span class="font-medium">{{ totalItems }} seleccionados</span>
+              </div>
+            </div>
+
+            <!-- Materials List with Scroll -->
+            <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2">
+              <div v-for="item in filteredMaterials" :key="item.id_material"
+                class="card transition-all duration-200 border" :class="{
+                  'bg-green-50 border-green-200': item.cantidad > 0,
+                  'bg-base-100 border-base-200': item.cantidad === 0
+                }">
+                <div class="card-body p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                  <!-- Info -->
+                  <div class="flex-1">
+                    <div class="flex items-start justify-between">
+                      <h2 class="font-semibold text-lg">{{ item.nombre }}</h2>
+                      <span class="text-sm font-medium text-green-600" v-if="item.cantidad > 0">
+                        {{ item.cantidad }} x S/. {{ item.precio }}
+                      </span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}</p>
+                    <p class="font-bold text-primary mt-1">S/. {{ (item.precio * item.cantidad).toFixed(2) }}</p>
+                  </div>
+
+                  <!-- Controls -->
+                  <div class="flex items-center gap-2">
+                    <button class="btn btn-sm btn-ghost border border-gray-300 hover:bg-gray-100"
+                      @click="decrementar(item)" :disabled="item.cantidad === 0">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 12H4" />
+                      </svg>
+                    </button>
+
+                    <input type="number" class="input input-sm input-bordered w-16 text-center"
+                      v-model.number="item.cantidad" min="0" @input="handleQuantityInput($event, item)" />
+
+                    <button class="btn btn-sm btn-primary" @click="incrementar(item)">
+                      <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24"
+                        stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  </div>
                 </div>
-
-                <!-- Controles -->
-                <div class="flex items-center gap-2">
-                  <button class="btn btn-sm btn-outline" @click="decrementar(item)">
-                    -
-                  </button>
-
-                  <input type="number" class="input input-sm input-bordered w-16 text-center"
-                    v-model.number="item.cantidad" min="0" />
-
-                  <button class="btn btn-sm btn-primary" @click="incrementar(item)">
-                    +
-                  </button>
-                </div>
-
               </div>
             </div>
           </template>
@@ -184,8 +219,11 @@ const { selectedPersona, materiales, useGetMaterialesPersona, useCreatePedido } 
 const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
 const { mutate: createPedido, isPending: isPendingCreatePedido } = useCreatePedido()
 
+const searchQuery = ref('')
+
 const selectPersona = (persona: any) => {
   selectedPersona.value = persona;
+  searchQuery.value = ''; // Reset search when selecting a new person
   refetchMaterialesPersona();
 };
 
@@ -206,9 +244,30 @@ const decrementar = (item: any) => {
   if (item.cantidad > 0) item.cantidad--;
 };
 
+const handleQuantityInput = (event: Event, item: any) => {
+  const input = event.target as HTMLInputElement;
+  let value = parseInt(input.value);
+
+  if (isNaN(value) || value < 0) {
+    value = 0;
+  }
+
+  item.cantidad = value;
+};
+
 /* const verMateriales = () => {
   refetchMaterialesPersona();
 }; */
+
+const filteredMaterials = computed(() => {
+  if (!searchQuery.value) return materiales.value;
+  const query = searchQuery.value?.toLowerCase() || '';
+  return materiales.value.filter((item: any) => {
+    const nombre = item.nombre?.toLowerCase() || '';
+    const descripcion = item.descripcion?.toLowerCase() || '';
+    return nombre.includes(query) || descripcion.includes(query);
+  });
+});
 
 const totalItems = computed(() =>
   materiales.value.reduce((sum: number, item: any) => sum + item.cantidad, 0)
