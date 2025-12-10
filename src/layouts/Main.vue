@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <!-- Sidebar -->
-    <Sidebar :open="sidebarOpen" @close="sidebarOpen = false" />
+    <!-- <Sidebar :open="sidebarOpen" @close="sidebarOpen = false" /> -->
 
     <!-- Main Content -->
     <div class="lg:pl-64 flex flex-col min-h-screen">
