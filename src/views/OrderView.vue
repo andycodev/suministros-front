@@ -67,6 +67,35 @@
       <button class="btn btn-neutral btn-block mt-8" @click="refetchPersonas()">
         {{ isRefetchingPersonas ? 'Buscando persona ...' : 'Buscar persona' }}
       </button>
+
+      <!-- Totalizador -->
+      <div v-if="totalItems > 0" class="p-4 mb-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm">
+        <div v-if="selectedPersona" class="text-xs text-gray-600 mb-2">
+          Pedido para:
+          <strong>{{ selectedPersona.nombres }} {{ selectedPersona.ap_paterno }}</strong>
+        </div>
+        <h3 class="text-lg font-semibold mb-2 text-gray-700">
+          Resumen del Pedido
+        </h3>
+
+        <p class="text-sm text-gray-600">
+          <strong>Total de materiales:</strong> {{ totalItems }}
+        </p>
+
+        <p class="text-sm text-gray-600">
+          <strong>Monto total:</strong> S/. {{ totalPrecio.toFixed(2) }}
+        </p>
+
+        <div class="mt-3">
+          <button class="btn btn-sm btn-primary" @click="enviarPedido()">
+            {{ isPendingCreatePedido ? 'Realizando pedido...' : 'Realizar pedido' }}
+          </button>
+        </div>
+        <pre>
+          {{ pedidoPayload }}
+        </pre>
+      </div>
+
     </div>
 
     <div class="col-span-1 md:col-span-2 space-y-4 p-2">
@@ -94,19 +123,53 @@
             </h3>
             <p class="text-sm text-gray-500">DNI: {{ persona.documento }} | Iglesia: {{ persona.iglesia.nombre }}</p>
             <div class="card-actions justify-end">
-              <button class="btn btn-xs btn-outline btn-neutral" @click="refetchMaterialesPersona()">
-                {{ isRefetchingMaterialesPersona ? 'Cargando materiales ...' : 'Ver materiales' }}
+              <button class="btn btn-xs btn-outline btn-neutral" @click="selectPersona(persona)">
+                {{ isRefetchingMaterialesPersona ? 'Cargando materiales ...' : 'Seleccionar' }}
               </button>
             </div>
           </div>
         </div>
-        <pre>{{ materialesPersona }}</pre>
+
+        <div class="w-full max-w-3xl mx-auto space-y-3">
+          <div v-if="isLoadingMaterialesPersona">Cargando materiales ...</div>
+          <template v-else>
+            <div v-for="item in materiales" :key="item.id_material"
+              class="card bg-base-100 shadow-sm border border-base-200 hover:shadow-md transition-all duration-200">
+              <div class="card-body p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+
+                <!-- Info -->
+                <div>
+                  <h2 class="font-semibold text-lg">{{ item.nombre }}</h2>
+                  <p class="text-sm opacity-70 -mt-1">{{ item.descripcion }}</p>
+                  <p class="font-bold text-primary mt-1">S/. {{ item.precio }}</p>
+                </div>
+
+                <!-- Controles -->
+                <div class="flex items-center gap-2">
+                  <button class="btn btn-sm btn-outline" @click="decrementar(item)">
+                    -
+                  </button>
+
+                  <input type="number" class="input input-sm input-bordered w-16 text-center"
+                    v-model.number="item.cantidad" min="0" />
+
+                  <button class="btn btn-sm btn-primary" @click="incrementar(item)">
+                    +
+                  </button>
+                </div>
+
+              </div>
+            </div>
+          </template>
+        </div>
+        <!-- <pre>{{ materialesPersona }}</pre> -->
       </template>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, watchEffect, computed } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
@@ -117,6 +180,60 @@ const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
 
-const { useGetMaterialesPersona } = usePedido()
-const { data: materialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
+const { selectedPersona, materiales, useGetMaterialesPersona, useCreatePedido } = usePedido()
+const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
+const { mutate: createPedido, isPending: isPendingCreatePedido } = useCreatePedido()
+
+const selectPersona = (persona: any) => {
+  selectedPersona.value = persona;
+  refetchMaterialesPersona();
+};
+
+watchEffect(() => {
+  if (materialesPersona.value) {
+    materiales.value = materialesPersona.value.map((m: any) => ({
+      ...m,
+      cantidad: 0
+    }));
+  }
+});
+
+const incrementar = (item: any) => {
+  item.cantidad++;
+};
+
+const decrementar = (item: any) => {
+  if (item.cantidad > 0) item.cantidad--;
+};
+
+/* const verMateriales = () => {
+  refetchMaterialesPersona();
+}; */
+
+const totalItems = computed(() =>
+  materiales.value.reduce((sum: number, item: any) => sum + item.cantidad, 0)
+);
+
+const totalPrecio = computed(() =>
+  materiales.value.reduce(
+    (sum: number, item: any) => sum + item.cantidad * item.precio,
+    0
+  )
+);
+
+const pedidoPayload: any = computed(() => ({
+  id_persona: selectedPersona.value?.id_persona ?? null,
+  detalles: materiales.value
+    .filter((item: any) => item.cantidad > 0)
+    .map((item: any) => ({
+      id_material: item.id_material,
+      cantidad: item.cantidad
+    }))
+}));
+
+const enviarPedido = () => {
+  console.log('pedidoPayload', pedidoPayload.value)
+  createPedido(pedidoPayload.value)
+};
+
 </script>

@@ -1,11 +1,15 @@
-import { computed } from 'vue';
-import { useQuery } from '@tanstack/vue-query';
-import { getMaterialesPersonaFn } from '@/services/materiales.service';
+import { ref, computed } from 'vue';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
+import { createPedidoFn, getMaterialesPersonaFn } from '@/services/pedido.service';
 
 const usePedido = () => {
 
+    const queryClient: any = useQueryClient();
+    const selectedPersona: any = ref(null);
+    const materiales: any = ref([])
+
     function useGetMaterialesPersona() {
-        const { data, isPending, refetch, isRefetching } = useQuery({
+        const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
             queryKey: computed(() => ['materiales-persona']),
             queryFn: async () => {
                 const data = await getMaterialesPersonaFn()
@@ -13,11 +17,23 @@ const usePedido = () => {
             },
             enabled: computed(() => false),
         });
-        return { data, isPending, refetch, isRefetching }
+        return { data, isLoading, isPending, refetch, isRefetching }
+    }
+
+    function useCreatePedido() {
+        const { mutate, isPending, isError, isSuccess } = useMutation({
+            mutationKey: ['create-pedido'],
+            mutationFn: (payload: any) => createPedidoFn(payload),
+            onSuccess: () => queryClient.refetchQueries({ queryKey: ['pedidos'] })
+        });
+        return { mutate, isPending, isError, isSuccess };
     }
 
     return {
+        selectedPersona,
+        materiales,
         useGetMaterialesPersona,
+        useCreatePedido,
     }
 }
 

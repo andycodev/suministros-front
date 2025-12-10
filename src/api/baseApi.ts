@@ -63,7 +63,7 @@ baseApi.interceptors.response.use(
         }
 
         // Return only the data from the response
-        return response.data;
+        return response;
     }
 );
 
