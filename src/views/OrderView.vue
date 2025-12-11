@@ -100,6 +100,14 @@
                 {{ isPendingCreatePedido ? 'Realizando pedido...' : 'Realizar pedido' }}
               </button>
             </div>
+            <div v-if="messageSuccces" role="alert" class="alert alert-success alert-soft mt-3">
+              <svg xmlns="http://www.w3.org/2000/svg" class="stroke-current shrink-0 h-6 w-6" fill="none"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+              <span>¡Se ha realizado el pedido correctamente!</span>
+            </div>
             <!-- <pre>
               {{ pedidoPayload }}
             </pre> -->
@@ -110,9 +118,9 @@
         <div class="col-span-1 md:col-span-2 space-y-6 p-6">
           <div class="flex justify-between items-center mb-4">
             <h2 class="text-2xl font-bold text-gray-800">Resultados de la Búsqueda</h2>
-            <div v-if="totalItems > 0" class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
+            <!-- <div v-if="totalItems > 0" class="bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full">
               {{ totalItems }} {{ totalItems === 1 ? 'ítem seleccionado' : 'ítems seleccionados' }}
-            </div>
+            </div> -->
           </div>
 
           <div class="alert bg-gray-50 border border-gray-200 text-gray-600">
@@ -139,7 +147,8 @@
                 </p>
                 <div class="card-actions justify-end">
                   <button class="btn btn-xs btn-outline btn-neutral" @click="selectPersona(persona)">
-                    {{ isRefetchingMaterialesPersona ? 'Cargando materiales ...' : 'Seleccionar' }}
+                    {{ isRefetchingMaterialesPersona ? 'Cargando materiales ...' : 'Seleccionar para realizar el pedido'
+                    }}
                   </button>
                 </div>
               </div>
@@ -162,8 +171,8 @@
 
                   <!-- Selected items counter -->
                   <div v-if="totalItems > 0" class="text-sm text-gray-500 mt-2 px-1">
-                    {{ filteredMaterials.length }} materiales encontrados |
-                    <span class="font-medium">{{ totalItems }} seleccionados</span>
+                    {{ filteredMaterials.length }} materiales encontrados
+                    <!-- <span class="font-medium">{{ totalItems }} seleccionados</span> -->
                   </div>
                 </div>
 
@@ -262,7 +271,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed } from 'vue';
+import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
@@ -275,9 +284,10 @@ const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPers
 
 const { selectedPersona, materiales, useGetMaterialesPersona, useCreatePedido } = usePedido()
 const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
-const { mutate: createPedido, isPending: isPendingCreatePedido } = useCreatePedido()
+const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
 
 const searchQuery = ref('')
+const messageSuccces = ref(false);
 
 const selectPersona = (persona: any) => {
   selectedPersona.value = persona;
@@ -348,9 +358,25 @@ const pedidoPayload: any = computed(() => ({
     }))
 }));
 
-const enviarPedido = () => {
-  console.log('pedidoPayload', pedidoPayload.value)
-  createPedido(pedidoPayload.value)
+const enviarPedido = async () => {
+  try {
+    await createPedido(pedidoPayload.value);
+    messageSuccces.value = true;
+    setTimeout(() => {
+      messageSuccces.value = false;
+    }, 3000);
+  } catch (error) {
+    console.error('Error al enviar el pedido:', error);
+  }
 };
+
+watch(isSuccessCreatePedido, (isSuccess) => {
+  if (isSuccess) {
+    messageSuccces.value = true;
+    setTimeout(() => {
+      messageSuccces.value = false;
+    }, 3000);
+  }
+});
 
 </script>

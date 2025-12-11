@@ -1,5 +1,6 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import OrderView from '@/views/OrderView.vue'
+import PayView from '@/views/PayView.vue'
 import TrackingView from '@/views/TrackingView.vue'
 
 const routes = [
@@ -9,7 +10,10 @@ const routes = [
     path: '/',
     redirect: '/order',
   },
-
+  {
+    path: '/order/pay/:id_pedido',
+    component: PayView,
+  },
   {
     path: '/:pathMatch(.*)*',
     redirect: '/order',

@@ -23,7 +23,7 @@ const usePedido = () => {
     function useCreatePedido() {
         const { mutate, isPending, isError, isSuccess } = useMutation({
             mutationKey: ['create-pedido'],
-            mutationFn: (payload: any) => createPedidoFn(payload),
+            mutationFn: (data: any) => createPedidoFn(data),
             onSuccess: () => queryClient.refetchQueries({ queryKey: ['pedidos'] })
         });
         return { mutate, isPending, isError, isSuccess };
