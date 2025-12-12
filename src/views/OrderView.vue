@@ -1,13 +1,4 @@
 <template>
-  <!-- Hero Section -->
-  <div class="bg-gradient-to-r from-blue-600 to-blue-800 text-white py-16 px-4">
-    <div class="max-w-6xl mx-auto text-center">
-      <h1 class="text-4xl md:text-5xl font-bold mb-4">Sistema de Pedidos de Materiales</h1>
-      <p class="text-xl text-blue-100 max-w-3xl mx-auto">Gestiona y realiza tus pedidos de materiales de manera rápida y
-        sencilla</p>
-    </div>
-  </div>
-
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-w-6xl mx-auto">
@@ -73,20 +64,21 @@
               placeholder="Escriba su número de documento" />
           </fieldset>
 
-          <button class="btn btn-neutral btn-block mt-8" @click="refetchPersonas()">
+          <button class="btn btn-neutral btn-block mt-8" @click="searPerson()">
             {{ isRefetchingPersonas ? 'Buscando persona ...' : 'Buscar persona' }}
           </button>
 
           <!-- Totalizador -->
           <div v-if="totalItems > 0" class="p-4 mb-4 bg-gray-50 border border-gray-300 rounded-lg shadow-sm">
-            <div v-if="selectedPersona" class="text-xs text-gray-600 mb-2">
-              Pedido para:
-              <strong>{{ selectedPersona.nombres }} {{ selectedPersona.ap_paterno }}</strong>
+            <div role="alert" class="alert alert-warning alert-soft">
+              <span>Guarda el pedido para conservar</span>
             </div>
-            <h3 class="text-lg font-semibold mb-2 text-gray-700">
-              Resumen del Pedido
-            </h3>
-
+            <div v-if="selectedPersona" class="text-lg text-gray-600 text-center mb-2">
+              <!-- Pedido para: -->
+              <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{ selectedPersona?.ap_materno
+              }}</strong>
+            </div>
+            <div class="divider divider-neutral">Resumen del pedido</div>
             <p class="text-sm text-gray-600">
               <strong>Total de materiales:</strong> {{ totalItems }}
             </p>
@@ -96,8 +88,8 @@
             </p>
 
             <div class="mt-3">
-              <button class="btn btn-sm btn-primary" @click="enviarPedido()">
-                {{ isPendingCreatePedido ? 'Realizando pedido...' : 'Realizar pedido' }}
+              <button class="btn btn-sm btn-primary w-full" @click="enviarPedido()">
+                {{ isPendingCreatePedido ? 'Realizando pedido...' : 'Guardar y continuar' }}
               </button>
             </div>
             <div v-if="messageSuccces" role="alert" class="alert alert-success alert-soft mt-3">
@@ -155,10 +147,114 @@
             </div>
 
             <div class="w-full max-w-3xl mx-auto space-y-3">
-              <div v-if="isLoadingMaterialesPersona">Cargando materiales ...</div>
+              <div v-if="isLoadingMaterialesPersona || isLoadingPedidoDetail">Cargando ...</div>
+              <template v-if="pedidoDetail?.detalles?.length > 0">
+                <div class="max-w-4xl mx-auto p-6">
+                  <!-- Header -->
+                  <div class="card bg-base-100 shadow-xl mb-6 border border-base-300">
+                    <div class="card-body">
+
+                      <!-- ALERTA INFORMANDO -->
+                      <div role="alert" class="alert alert-warning alert-outline mb-4">
+                        <span>
+                          Tienes un pedido pendiente. Puedes revisar los detalles y continuar con el pago
+                          o eliminarlo.
+                        </span>
+                      </div>
+
+                      <!-- TÍTULO DEL PEDIDO -->
+                      <h2 class="card-title text-2xl font-bold">
+                        Pedido #{{ pedidoDetail?.codigo }}
+                      </h2>
+
+                      <p class="text-sm opacity-70">
+                        Realizado el: {{ new Date(pedidoDetail?.created_at).toLocaleString() }}
+                      </p>
+
+                      <!-- INFORMACIÓN -->
+                      <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
+                        <div class="p-4 bg-base-200 rounded-xl">
+                          <h3 class="font-semibold mb-2">Información del Cliente</h3>
+                          <p>{{ pedidoDetail?.persona?.nombres }} {{ pedidoDetail?.persona?.ap_paterno }} {{
+                            pedidoDetail?.persona?.ap_materno }}</p>
+                          <p class="text-sm opacity-70">{{ pedidoDetail?.persona?.email }}</p>
+                          <p class="text-sm opacity-70">{{ pedidoDetail?.persona?.telefono }}</p>
+                        </div>
+
+                        <div class="p-4 bg-base-200 rounded-xl">
+                          <h3 class="font-semibold mb-2">Estado del Pedido</h3>
+                          <span class="badge badge-primary badge-lg">
+                            {{ pedidoDetail?.estado }}
+                          </span>
+                          <p class="mt-2 text-sm">
+                            Total Ítems: <strong>{{ pedidoDetail?.total_cantidad }}</strong>
+                          </p>
+                          <p class="text-sm">
+                            Total Monto:
+                            <strong class="text-success text-lg">S/ {{ pedidoDetail?.total_monto }}</strong>
+                          </p>
+                        </div>
+                      </div>
+
+                      <!-- ACCIONES -->
+                      <div class="mt-6 flex flex-col md:flex-row gap-4">
+                        <router-link :to="`order/pay/${pedidoDetail?.id_pedido}`" class="btn btn-primary flex-1">
+                          Ver detalle y continuar con el pago
+                        </router-link>
+                        <button class="btn btn-error btn-outline flex-1">
+                          Eliminar Pedido
+                        </button>
+                      </div>
+
+                    </div>
+                  </div>
+
+                  <!-- Tabla de detalles -->
+                  <!--    <div class="card bg-base-100 shadow-xl border border-base-300">
+                    <div class="card-body">
+                      <h3 class="text-xl font-bold mb-4">Productos</h3>
+
+                      <div class="overflow-x-auto">
+                        <table class="table table-zebra w-full">
+                          <thead>
+                            <tr>
+                              <th>#</th>
+                              <th>Material</th>
+                              <th>Cantidad</th>
+                              <th>Precio Unit.</th>
+                              <th>Subtotal</th>
+                            </tr>
+                          </thead>
+
+                          <tbody>
+                            <tr v-for="(d, i) in pedidoDetail?.detalles" :key="d.id_detalle">
+                              <td>{{ i + 1 }}</td>
+                              <td>
+                                <div class="font-semibold">{{ d.material.nombre }}</div>
+                                <div class="text-xs opacity-70">{{ d.material.descripcion }}</div>
+                              </td>
+                              <td>{{ d.cantidad }}</td>
+                              <td>S/ {{ d.precio_unit }}</td>
+                              <td class="font-semibold">S/ {{ d.subtotal }}</td>
+                            </tr>
+                          </tbody>
+                        </table>
+                      </div>
+
+                      <div class="mt-6 flex justify-end">
+                        <div class="text-right">
+                          <p class="text-lg font-semibold">Total:
+                            <span class="text-success text-xl">S/ {{ pedidoDetail?.total_monto }}</span>
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                  </div> -->
+                </div>
+              </template>
               <template v-else>
-                <!-- Search Bar -->
-                <div class="sticky top-0 z-10 bg-white pb-2">
+                <div v-if="totalItems > 0" class="sticky top-0 z-10 bg-white pb-2">
+                  <!-- Search Bar -->
                   <div class="relative">
                     <input type="text" v-model="searchQuery" placeholder="Buscar materiales..."
                       class="input input-bordered w-full pl-10 pr-4 py-2 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/50">
@@ -168,14 +264,12 @@
                         d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
                     </svg>
                   </div>
-
                   <!-- Selected items counter -->
-                  <div v-if="totalItems > 0" class="text-sm text-gray-500 mt-2 px-1">
+                  <div class="text-sm text-gray-500 mt-2 px-1">
                     {{ filteredMaterials.length }} materiales encontrados
                     <!-- <span class="font-medium">{{ totalItems }} seleccionados</span> -->
                   </div>
                 </div>
-
                 <!-- Materials List with Scroll -->
                 <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2">
                   <div v-for="item in filteredMaterials" :key="item.id_material"
@@ -219,6 +313,19 @@
                     </div>
                   </div>
                 </div>
+                <!--     <div class="max-w-4xl mx-auto p-6">
+                  <div class="alert alert-info">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
+                      class="stroke-current flex-shrink-0 w-6 h-6">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                    </svg>
+                    <div>
+                      <h3 class="font-bold">Información</h3>
+                      <div class="text-xs">No se encontraron resultados para la búsqueda.</div>
+                    </div>
+                  </div>
+                </div> -->
               </template>
             </div>
             <!-- <pre>{{ materialesPersona }}</pre> -->
@@ -272,6 +379,7 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, computed, watch } from 'vue';
+import { useRoute } from 'vue-router'
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
@@ -282,18 +390,37 @@ const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
 
-const { selectedPersona, materiales, useGetMaterialesPersona, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesPersona, useCreatePedido } = usePedido()
 const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
+const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPedidoDetail, isRefetching: isRefetchingPedidoDetail } = useShowPedidoByIdPersona()
 
 const searchQuery = ref('')
-const messageSuccces = ref(false);
+const messageSuccces = ref(false)
+const route = useRoute()
 
-const selectPersona = (persona: any) => {
+const selectPersona = async (persona: any) => {
   selectedPersona.value = persona;
-  searchQuery.value = ''; // Reset search when selecting a new person
-  refetchMaterialesPersona();
+  searchQuery.value = '';
+
+  // 🔥 RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
+  pedidoDetail.value = null;
+  materialesPersona.value = [];
+
+  // 🔥 Vuelve a refetchear pasando el id de la persona seleccionada
+  await refetchPedidoDetail();
+
+  const tienePedidoPrevio =
+    pedidoDetail.value &&
+    Array.isArray(pedidoDetail.value.detalles) &&
+    pedidoDetail.value.detalles.length > 0;
+
+  // Si NO tiene pedido → cargamos materiales
+  if (!tienePedidoPrevio) {
+    await refetchMaterialesPersona();
+  }
 };
+
 
 watchEffect(() => {
   if (materialesPersona.value) {
@@ -378,5 +505,13 @@ watch(isSuccessCreatePedido, (isSuccess) => {
     }, 3000);
   }
 });
+
+const searPerson = async () => {
+  selectedPersona.value = null;
+  pedidoDetail.value = null;
+  materialesPersona.value = [];
+  searchQuery.value = '';
+  await refetchPersonas();
+};
 
 </script>

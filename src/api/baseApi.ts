@@ -9,10 +9,9 @@ export interface ApiResponse<T = any> {
     error?: string;
 }
 
-// Create axios instance with default config
 const baseApi: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_API_URL as string,
-    timeout: 10000, // 10 seconds
+    timeout: 10000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -28,9 +27,7 @@ baseApi.interceptors.request.use(
         }
         return config;
     },
-    (error) => {
-        return Promise.reject(error);
-    }
+    (error) => Promise.reject(error)
 );
 
 // Response interceptor
@@ -39,7 +36,7 @@ baseApi.interceptors.response.use(
         const method = response.config.method?.toLowerCase() || '';
         let message = '';
 
-        // Handle success messages based on HTTP method
+        // Prefer server message
         if (response.data?.message) {
             message = response.data.message;
         } else {
@@ -57,14 +54,14 @@ baseApi.interceptors.response.use(
             }
         }
 
-        // Only show success message for non-GET requests
+        // Log success message for non-GET requests
         if (method !== 'get' && message) {
-            return;
+            console.log(`API SUCCESS: ${message}`);
         }
 
-        // Return only the data from the response
         return response;
-    }
+    },
+    (error) => Promise.reject(error)
 );
 
 export default baseApi;
