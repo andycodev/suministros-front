@@ -1,11 +1,10 @@
 import { ref, computed } from 'vue';
 import { useRoute } from 'vue-router'
-import { useQuery, useQueryClient } from '@tanstack/vue-query';
+import { useQuery } from '@tanstack/vue-query';
 import { showPedidoByIdPedidoFn } from '@/services/pedido.service';
 
 const usePay = () => {
 
-    const queryClient: any = useQueryClient();
     const route = useRoute()
     const idPedido = ref(route.params.id_pedido)
 

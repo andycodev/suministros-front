@@ -7,6 +7,11 @@ export const getMaterialesPersonaFn = async () => {
     return data;
 }
 
+export const getMaterialesIglesiaFn = async () => {
+    const { data } = await baseApi.get(`${endPointUrl}/materiales-iglesias`);
+    return data;
+}
+
 export const showPedidoByIdPedidoFn = async (id_pedido: number) => {
     const { data } = await baseApi.get(`${endPointUrl}/pedidos/${id_pedido}`);
     return data;
