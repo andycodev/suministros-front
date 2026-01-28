@@ -210,7 +210,7 @@
 
                                             <!-- ACCIONES -->
                                             <div class="mt-6 flex flex-col md:flex-row gap-4">
-                                                <router-link :to="`order/pay/${pedidoDetail?.id_pedido}`"
+                                                <router-link :to="`/director/order/pay/${pedidoDetail?.id_pedido}`"
                                                     class="btn btn-primary flex-1">
                                                     Ver detalle y continuar con el pago
                                                 </router-link>

@@ -76,8 +76,8 @@ const router = useRouter();
 
 // Usamos reactive para agrupar campos del formulario
 const form = reactive({
-    username: '',
-    password: ''
+    username: 'director',
+    password: 'admin123'
 });
 
 const isLoading = ref(false);

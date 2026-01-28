@@ -5,8 +5,9 @@ import TrackingView from '@/views/TrackingView.vue'
 import ConfirmationView from '@/views/ConfirmationView.vue'
 import LoginView from '@/views/LoginView.vue'
 import DirectorLayout from '@/layouts/DirectorLayout.vue'
-import DirectorDashboardView from '@/views/DirectorDashboardView.vue'
-import OrdersView from '@/views/director/OrdersView.vue'
+import DashboardView from '@/views/director/DashboardView.vue'
+import DirectorOrderView from '@/views/director/OrderView.vue'
+import DirectorPayView from '@/views/director/PayView.vue'
 import MaterialsView from '@/views/director/MaterialsView.vue'
 import ReportsView from '@/views/director/ReportsView.vue'
 import SettingsView from '@/views/director/SettingsView.vue'
@@ -38,11 +39,15 @@ const routes = [
     children: [
       {
         path: 'dashboard',
-        component: DirectorDashboardView,
+        component: DashboardView,
       },
       {
-        path: 'orders',
-        component: OrdersView,
+        path: 'order',
+        component: DirectorOrderView,
+      },
+      {
+        path: 'order/pay/:id_pedido',
+        component: DirectorPayView,
       },
       {
         path: 'materials',
