@@ -1,9 +1,9 @@
 <template>
     <!-- Main Content -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-w-6xl mx-auto">
+        <div class="rounded-xl overflow-hidden border border-gray-100 max-w-6xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
-                <div class="col-span-1 space-y-5 p-6 bg-gray-50 border-r border-gray-100 md:border-gray-200">
+                <div class="col-span-1 space-y-5 p-6 border-r border-gray-100 md:border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Filtros de Búsqueda</h2>
 
                     <fieldset class="form-control w-full">
@@ -82,7 +82,7 @@
                             <!-- Pedido para: -->
                             <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{
                                 selectedPersona?.ap_materno
-                            }}</strong>
+                                }}</strong>
                         </div>
                         <div class="divider divider-neutral">Resumen del pedido</div>
                         <p class="text-sm text-gray-600">
@@ -146,7 +146,7 @@
                                 </p>
                                 <div class="card-actions justify-end">
                                     <button class="btn btn-xs btn-outline btn-neutral" @click="selectPersona(persona)">
-                                        {{ isRefetchingMaterialesPersona ?
+                                        {{ isRefetchingMaterialesIglesia ?
                                             'Cargando materiales ...' :
                                             'Seleccionar para realizar el pedido' }}
                                     </button>
@@ -155,7 +155,7 @@
                         </div>
 
                         <div class="w-full max-w-3xl mx-auto space-y-3">
-                            <div v-if="isLoadingMaterialesPersona || isLoadingPedidoDetail">Cargando ...</div>
+                            <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
                             <template v-if="pedidoDetail?.detalles?.length > 0">
                                 <div class="max-w-4xl mx-auto p-6">
                                     <!-- Header -->
@@ -350,7 +350,7 @@
                 </div> -->
                             </template>
                         </div>
-                        <!-- <pre>{{ materialesPersona }}</pre> -->
+                        <!-- <pre>{{ materialesIglesia }}</pre> -->
                     </template>
                 </div>
             </div>
@@ -358,7 +358,7 @@
     </div>
 
     <!-- Director Login Button -->
-    <div class="fixed bottom-4 right-4 z-50">
+    <div v-if="!isDirectorAuthenticated" class="fixed bottom-4 right-4 z-50">
         <router-link to="/login-director" class="btn btn-primary btn-lg shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -383,14 +383,17 @@ const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
 
-const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesPersona, useCreatePedido } = usePedido()
-const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
+const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesIglesia, useCreatePedido } = usePedido()
+const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, isPending: isPendingMaterialesIglesia, refetch: refetchMaterialesIglesia, isRefetching: isRefetchingMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
 const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPedidoDetail, isRefetching: isRefetchingPedidoDetail } = useShowPedidoByIdPersona()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
-const route = useRoute()
+
+const isDirectorAuthenticated = computed(() => {
+    return localStorage.getItem('isDirectorAuth') === 'true';
+});
 
 const selectPersona = async (persona: any) => {
     selectedPersona.value = persona;
@@ -398,7 +401,7 @@ const selectPersona = async (persona: any) => {
 
     // 🔥 RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
     pedidoDetail.value = null;
-    materialesPersona.value = [];
+    materialesIglesia.value = [];
 
     // 🔥 Vuelve a refetchear pasando el id de la persona seleccionada
     await refetchPedidoDetail();
@@ -410,14 +413,14 @@ const selectPersona = async (persona: any) => {
 
     // Si NO tiene pedido → cargamos materiales
     if (!tienePedidoPrevio) {
-        await refetchMaterialesPersona();
+        await refetchMaterialesIglesia();
     }
 };
 
 
 watchEffect(() => {
-    if (materialesPersona.value) {
-        materiales.value = materialesPersona.value.map((m: any) => ({
+    if (materialesIglesia.value) {
+        materiales.value = materialesIglesia.value.map((m: any) => ({
             ...m,
             cantidad: 0
         }));
@@ -444,7 +447,7 @@ const handleQuantityInput = (event: Event, item: any) => {
 };
 
 /* const verMateriales = () => {
-  refetchMaterialesPersona();
+  refetchMaterialesIglesia();
 }; */
 
 const filteredMaterials = computed(() => {
@@ -470,6 +473,7 @@ const totalPrecio = computed(() =>
 
 const pedidoPayload: any = computed(() => ({
     id_persona: selectedPersona.value?.id_persona ?? null,
+    tipo: 'I',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({
@@ -502,7 +506,7 @@ watch(isSuccessCreatePedido, (isSuccess) => {
 const searPerson = async () => {
     selectedPersona.value = null;
     pedidoDetail.value = null;
-    materialesPersona.value = [];
+    materialesIglesia.value = [];
     searchQuery.value = '';
     await refetchPersonas();
 };

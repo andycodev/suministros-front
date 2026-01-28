@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createPedidoFn, getMaterialesPersonaFn, showPedidoByIdPersonaFn } from '@/services/pedido.service';
+import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn } from '@/services/pedido.service';
 
 const usePedido = () => {
 
@@ -15,6 +15,18 @@ const usePedido = () => {
             queryKey: computed(() => ['materiales-persona']),
             queryFn: async () => {
                 const data = await getMaterialesPersonaFn()
+                return data
+            },
+            enabled: computed(() => false),
+        });
+        return { data, isLoading, isPending, refetch, isRefetching }
+    }
+
+    function useGetMaterialesIglesia() {
+        const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
+            queryKey: computed(() => ['materiales-iglesia']),
+            queryFn: async () => {
+                const data = await getMaterialesIglesiaFn()
                 return data
             },
             enabled: computed(() => false),
@@ -68,6 +80,7 @@ const usePedido = () => {
         selectedPersona,
         materiales,
         useGetMaterialesPersona,
+        useGetMaterialesIglesia,
         useShowPedidoByIdPersona,
         useCreatePedido,
     }
