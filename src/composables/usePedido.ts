@@ -48,7 +48,7 @@ const usePedido = () => {
         } */
 
     function useCreatePedido() {
-        const { mutate, isPending, isSuccess } = useMutation({
+        const { mutate, isPending, isSuccess, isError } = useMutation({
             mutationKey: ['create-pedido'],
             mutationFn: (payload) => createPedidoFn(payload),
             onSuccess: (data) => {
@@ -61,7 +61,7 @@ const usePedido = () => {
                 return data;
             }
         });
-        return { mutate, isPending, isSuccess };
+        return { mutate, isPending, isSuccess, isError };
     }
 
     return {

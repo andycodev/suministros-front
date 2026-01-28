@@ -3,6 +3,13 @@ import OrderView from '@/views/OrderView.vue'
 import PayView from '@/views/PayView.vue'
 import TrackingView from '@/views/TrackingView.vue'
 import ConfirmationView from '@/views/ConfirmationView.vue'
+import LoginView from '@/views/LoginView.vue'
+import DirectorLayout from '@/layouts/DirectorLayout.vue'
+import DirectorDashboardView from '@/views/DirectorDashboardView.vue'
+import OrdersView from '@/views/director/OrdersView.vue'
+import MaterialsView from '@/views/director/MaterialsView.vue'
+import ReportsView from '@/views/director/ReportsView.vue'
+import SettingsView from '@/views/director/SettingsView.vue'
 
 const routes = [
   { path: '/order', component: OrderView },
@@ -20,6 +27,38 @@ const routes = [
     component: ConfirmationView,
   },
   {
+    path: '/login-director',
+    component: LoginView,
+  },
+  {
+    path: '/director',
+    component: DirectorLayout,
+    meta: { requiresAuth: true },
+    redirect: '/director/dashboard',
+    children: [
+      {
+        path: 'dashboard',
+        component: DirectorDashboardView,
+      },
+      {
+        path: 'orders',
+        component: OrdersView,
+      },
+      {
+        path: 'materials',
+        component: MaterialsView,
+      },
+      {
+        path: 'reports',
+        component: ReportsView,
+      },
+      {
+        path: 'settings',
+        component: SettingsView,
+      },
+    ],
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: '/order',
   }
@@ -29,5 +68,19 @@ const router = createRouter({
   history: createWebHistory(),
   routes
 })
+
+// Guard de autenticación para rutas protegidas
+router.beforeEach((to, _from, next) => {
+  if (to.meta.requiresAuth) {
+    const isAuthenticated = localStorage.getItem('isDirectorAuth') === 'true';
+    if (!isAuthenticated) {
+      next('/login-director');
+    } else {
+      next();
+    }
+  } else {
+    next();
+  }
+});
 
 export default router

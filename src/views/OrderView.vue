@@ -335,6 +335,18 @@
     </div>
   </div>
 
+  <!-- Director Login Button -->
+  <div class="fixed bottom-4 right-4 z-50">
+    <router-link to="/login-director" class="btn btn-primary btn-lg shadow-lg">
+      <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
+        stroke="currentColor">
+        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+          d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+      </svg>
+      Iniciar sesión como director de publicaciones
+    </router-link>
+  </div>
+
   <!-- Features Section -->
   <div class="bg-gray-50 py-16 px-4">
     <div class="max-w-6xl mx-auto">
