@@ -1,7 +1,7 @@
 <template>
     <div class="flex h-screen bg-base-200">
         <!-- Sidebar -->
-        <aside class="w-64 bg-base-100 shadow-xl flex-shrink-0">
+        <aside class="w-64 bg-base-100 shadow-xl flex-shrink-0 relative">
             <div class="p-4">
                 <div class="flex items-center space-x-3 mb-8">
                     <div
@@ -15,6 +15,14 @@
                     <div>
                         <h2 class="font-bold text-lg">Director</h2>
                         <p class="text-sm text-gray-500">Publicaciones</p>
+                    </div>
+                </div>
+
+                <!-- Church Name Header -->
+                <div class="mb-6 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg shadow-md">
+                    <div class="text-center">
+                        <p class="text-xs text-primary-content/80 font-medium uppercase tracking-wider mb-1">Iglesia</p>
+                        <h3 class="text-lg font-bold text-primary-content">EL INTI</h3>
                     </div>
                 </div>
 
@@ -77,6 +85,16 @@
                         </router-link>
                     </li>
                 </ul>
+            </div>
+
+            <!-- Fixed Action Button at Bottom -->
+            <div class="absolute bottom-0 left-0 right-0 p-4 bg-base-100 border-t border-base-300">
+                <router-link to="/order"
+                    class="block w-full bg-secondary text-secondary-content font-bold py-3 px-4 rounded-lg shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-200 text-center">
+                    <div class="flex items-center justify-center space-x-2">
+                        <span>Realizar Pedido Personal</span>
+                    </div>
+                </router-link>
             </div>
         </aside>
 
