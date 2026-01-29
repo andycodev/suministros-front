@@ -171,6 +171,7 @@
                         Realizado el: {{ new Date(pedidoDetail?.created_at).toLocaleString() }}
                       </p>
 
+
                       <!-- INFORMACIÓN -->
                       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="p-4 bg-base-200 rounded-xl">
@@ -183,9 +184,12 @@
 
                         <div class="p-4 bg-base-200 rounded-xl">
                           <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                          <span class="badge badge-primary badge-lg">
-                            {{ pedidoDetail?.estado }}
-                          </span>
+                          <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado }}</div>
+                          <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
+                          <div class="badge badge-soft"
+                            :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">{{
+                              pedidoDetail?.tipo == 'P' ? 'PERSONAL' :
+                                'IGLESIA' }}</div>
                           <p class="mt-2 text-sm">
                             Total Ítems: <strong>{{ pedidoDetail?.total_cantidad }}</strong>
                           </p>
@@ -337,7 +341,7 @@
 
   <!-- Director Login Button -->
   <div class="fixed bottom-4 right-4 z-50">
-    <router-link v-if="!isDirectorAuthenticated" to="/login-director" class="btn btn-primary btn-lg shadow-lg">
+    <router-link v-if="!isDirectorAuthenticated" to="/login" class="btn btn-primary btn-lg shadow-lg">
       <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
         stroke="currentColor">
         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"

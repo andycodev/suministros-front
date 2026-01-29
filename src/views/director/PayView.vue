@@ -100,8 +100,15 @@
 
                     <!-- INFO DEL PEDIDO -->
                     <div class="md:col-span-1 p-4 bg-base-200 rounded-xl space-y-1">
-                        <h3 class="font-semibold">Resumen</h3>
-                        <span class="badge badge-primary badge-lg">{{ pedidoDetail?.estado }}</span>
+                        <h3 class="font-semibold mb-2">Estado del Pedido</h3>
+                        <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado
+                            }}</div>
+                        <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
+                        <div class="badge badge-soft"
+                            :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
+                            {{
+                                pedidoDetail?.tipo == 'P' ? 'PERSONAL' :
+                                    'IGLESIA' }}</div>
                         <p class="text-sm mt-2">
                             Ítems: <strong>{{ pedidoDetail?.total_cantidad }}</strong>
                         </p>

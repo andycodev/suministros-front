@@ -82,7 +82,7 @@
                             <!-- Pedido para: -->
                             <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{
                                 selectedPersona?.ap_materno
-                                }}</strong>
+                            }}</strong>
                         </div>
                         <div class="divider divider-neutral">Resumen del pedido</div>
                         <p class="text-sm text-gray-600">
@@ -195,7 +195,7 @@
                                                 <div class="p-4 bg-base-200 rounded-xl">
                                                     <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                                                     <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado
-                                                    }}</div>
+                                                        }}</div>
                                                     <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                     <div class="badge badge-soft"
                                                         :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">

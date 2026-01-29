@@ -1,6 +1,6 @@
 <template>
   <!-- Solo mostrar header para rutas que no sean del director -->
-  <template v-if="$route.path.startsWith('/director') || $route.path === '/login-director'">
+  <template v-if="$route.path.startsWith('/director') || $route.path === '/login'">
     <router-view />
   </template>
   <template v-else>

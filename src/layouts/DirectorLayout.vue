@@ -22,7 +22,7 @@
                 <div class="mb-6 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg shadow-md">
                     <div class="text-center">
                         <p class="text-xs text-primary-content/80 font-medium uppercase tracking-wider mb-1">Iglesia</p>
-                        <h3 class="text-lg font-bold text-primary-content">EL INTI</h3>
+                        <h3 class="text-lg font-bold text-primary-content uppercase">{{ userData?.iglesia }}</h3>
                     </div>
                 </div>
 
@@ -30,12 +30,15 @@
                     <li>
                         <router-link to="/director/dashboard" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/dashboard') }">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
-                                stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                    d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
-                            </svg>
+                            <HomeIcon class="h-5 w-5" />
                             <span>Dashboard</span>
+                        </router-link>
+                    </li>
+                    <li>
+                        <router-link to="/director/my-order" class="flex items-center space-x-3"
+                            :class="{ 'active': isActive('/director/my-order') }">
+                            <UserIcon class="h-5 w-5" />
+                            <span>Mi pedido</span>
                         </router-link>
                     </li>
                     <li>
@@ -106,24 +109,34 @@
                     <div class="flex-1">
                         <!-- <h1 class="text-xl font-bold">Panel de Control - Director de Publicaciones</h1> -->
                     </div>
-                    <div class="flex-none">
+                    <div class="flex items-center gap-3 flex-none">
+                        <!-- User info always visible -->
+                        <div class="hidden sm:flex flex-col text-right leading-tight">
+                            <span class="text-sm font-semibold text-base-content">
+                                {{ userData?.nombre }}
+                            </span>
+                            <span class="text-xs text-base-content/60 truncate max-w-[160px]">
+                                {{ userData?.email }}
+                            </span>
+                        </div>
+
+                        <!-- Avatar + dropdown -->
                         <div class="dropdown dropdown-end">
-                            <label tabindex="0" class="btn btn-ghost btn-circle avatar">
-                                <div
-                                    class="w-10 rounded-full bg-primary text-primary-content flex items-center justify-center">
-                                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none"
-                                        viewBox="0 0 24 24" stroke="currentColor">
-                                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-                                    </svg>
-                                </div>
+                            <label tabindex="0" class="btn btn-ghost btn-circle avatar bg-primary text-primary-content">
+                                <UserIcon class="h-6 w-6" />
                             </label>
+
                             <ul tabindex="0"
                                 class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
-                                <li><a @click="logout" class="text-error">Cerrar sesión</a></li>
+                                <li>
+                                    <a @click="logout" class="text-error">
+                                        Cerrar sesión
+                                    </a>
+                                </li>
                             </ul>
                         </div>
                     </div>
+
                 </div>
             </header>
 
@@ -136,7 +149,12 @@
 </template>
 
 <script setup lang="ts">
+import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
+import { HomeIcon, UserIcon } from '@heroicons/vue/24/outline'
+import useAuth from '@/composables/useAuth';
+
+const { useLogout } = useAuth();
 
 const router = useRouter();
 const route = useRoute();
@@ -146,10 +164,15 @@ const isActive = (path: string) => {
 };
 
 const logout = () => {
-    localStorage.removeItem('isDirectorAuth');
-    localStorage.removeItem('directorUser');
-    router.push('/login-director');
+    useLogout();
+    router.push('/login');
 };
+
+const userData = computed(() => {
+    const data = localStorage.getItem('directorData');
+    // Si existe, lo convertimos de texto a objeto, si no, devolvemos null
+    return data ? JSON.parse(data) : null;
+});
 </script>
 
 <style scoped>

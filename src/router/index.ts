@@ -6,6 +6,7 @@ import ConfirmationView from '@/views/ConfirmationView.vue'
 import LoginView from '@/views/LoginView.vue'
 import DirectorLayout from '@/layouts/DirectorLayout.vue'
 import DashboardView from '@/views/director/DashboardView.vue'
+import MyOrderView from '@/views/director/MyOrder.vue'
 import DirectorOrderView from '@/views/director/OrderView.vue'
 import DirectorPayView from '@/views/director/PayView.vue'
 import MaterialsView from '@/views/director/MaterialsView.vue'
@@ -28,7 +29,7 @@ const routes = [
     component: ConfirmationView,
   },
   {
-    path: '/login-director',
+    path: '/login',
     component: LoginView,
   },
   {
@@ -40,6 +41,10 @@ const routes = [
       {
         path: 'dashboard',
         component: DashboardView,
+      },
+      {
+        path: 'my-order',
+        component: MyOrderView,
       },
       {
         path: 'order',
@@ -79,7 +84,7 @@ router.beforeEach((to, _from, next) => {
   if (to.meta.requiresAuth) {
     const isAuthenticated = localStorage.getItem('isDirectorAuth') === 'true';
     if (!isAuthenticated) {
-      next('/login-director');
+      next('/login');
     } else {
       next();
     }
