@@ -61,7 +61,7 @@
               <span class="label-text text-sm font-medium text-gray-600">Documento (DNI)</span>
             </label>
             <input v-model="filters.documento" type="text" class="input input-bordered  w-full"
-              placeholder="Escriba su número de documento" />
+              placeholder="Escriba su número de documento" @keyup.enter="searPerson()" />
           </fieldset>
 
           <button class="btn btn-neutral btn-block mt-8" @click="searPerson()">
@@ -436,24 +436,28 @@ const selectPersona = async (persona: any) => {
   selectedPersona.value = persona;
   searchQuery.value = '';
 
-  // 🔥 RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
+  // RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
   pedidoDetail.value = null;
   materialesPersona.value = [];
 
-  // 🔥 Vuelve a refetchear pasando el id de la persona seleccionada
+  // Vuelve a refetchear pasando el id de la persona seleccionada
   await refetchPedidoDetail();
 
   const tienePedidoPrevio =
     pedidoDetail.value &&
-    Array.isArray(pedidoDetail.value.detalles) &&
-    pedidoDetail.value.detalles.length > 0;
+    Array.isArray(pedidoDetail.value) &&
+    pedidoDetail.value.some((p: any) =>
+      p.tipo === 'P' &&
+      p.detalles &&
+      Array.isArray(p.detalles) &&
+      p.detalles.length > 0
+    );
 
   // Si NO tiene pedido → cargamos materiales
   if (!tienePedidoPrevio) {
     await refetchMaterialesPersona();
   }
 };
-
 
 watchEffect(() => {
   if (materialesPersona.value) {
@@ -523,6 +527,11 @@ const enviarPedido = async () => {
   try {
     await createPedido(pedidoPayload.value);
     messageSuccces.value = true;
+    // Reset materials list after successful order
+    materiales.value = [];
+    materialesPersona.value = [];
+    selectedPersona.value = null;
+    searchQuery.value = '';
     setTimeout(() => {
       messageSuccces.value = false;
     }, 3000);
@@ -534,6 +543,11 @@ const enviarPedido = async () => {
 watch(isSuccessCreatePedido, (isSuccess) => {
   if (isSuccess) {
     messageSuccces.value = true;
+    // Reset materials list after successful order
+    materiales.value = [];
+    materialesPersona.value = [];
+    selectedPersona.value = null;
+    searchQuery.value = '';
     setTimeout(() => {
       messageSuccces.value = false;
     }, 3000);
@@ -547,5 +561,23 @@ const searPerson = async () => {
   searchQuery.value = '';
   await refetchPersonas();
 };
+
+// Simple debounce function
+const debounce = (func: Function, delay: number) => {
+  let timeoutId: NodeJS.Timeout;
+  return (...args: any[]) => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => func.apply(null, args), delay);
+  };
+};
+
+// Watch for DNI changes to auto-search
+const debouncedSearch = debounce(() => {
+  if (filters.documento && filters.documento.length >= 8) {
+    searPerson();
+  }
+}, 500);
+
+watch(() => filters.documento, debouncedSearch);
 
 </script>
