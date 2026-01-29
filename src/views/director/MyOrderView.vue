@@ -62,6 +62,7 @@
                             <div class="text-xs">Seleccione los materiales que desea incluir en su pedido.</div>
                         </div>
                     </div>
+
                     <div class="w-full max-w-3xl mx-auto space-y-3">
                         <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
                         <template v-if="pedidoDetail?.detalles?.length > 0">
@@ -102,7 +103,7 @@
                                             <div class="p-4 bg-base-200 rounded-xl">
                                                 <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                                                 <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado
-                                                    }}</div>
+                                                }}</div>
                                                 <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                 <div class="badge badge-soft"
                                                     :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">

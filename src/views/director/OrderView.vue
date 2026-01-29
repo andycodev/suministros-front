@@ -154,7 +154,7 @@
                             </div>
                         </div>
 
-                        <div class="w-full max-w-3xl mx-auto space-y-3">
+                        <div class="w-full max-w-3xl mx-auto space-y-3" v-if="selectedPersona">
                             <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
                             <template v-if="pedidoDetail?.detalles?.length > 0">
                                 <div class="max-w-4xl mx-auto p-6">
