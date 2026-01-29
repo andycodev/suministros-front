@@ -156,7 +156,7 @@
 
                         <div class="w-full max-w-3xl mx-auto space-y-3" v-if="selectedPersona">
                             <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
-                            <template v-if="pedidoDetail?.detalles?.length > 0">
+                            <template v-if="pedidoTipoIglesia">
                                 <div class="max-w-4xl mx-auto p-6">
                                     <!-- Header -->
                                     <div class="card bg-base-100 shadow-xl mb-6 border border-base-300">
@@ -173,49 +173,54 @@
 
                                             <!-- TÍTULO DEL PEDIDO -->
                                             <h2 class="card-title text-2xl font-bold">
-                                                Pedido #{{ pedidoDetail?.codigo }}
+                                                Pedido #{{ pedidoTipoIglesia.codigo }}
                                             </h2>
 
                                             <p class="text-sm opacity-70">
-                                                Realizado el: {{ new Date(pedidoDetail?.created_at).toLocaleString() }}
+                                                Realizado el:
+                                                {{ new Date(pedidoTipoIglesia.created_at).toLocaleString() }}
                                             </p>
 
                                             <!-- INFORMACIÓN -->
                                             <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                                 <div class="p-4 bg-base-200 rounded-xl">
                                                     <h3 class="font-semibold mb-2">Información del Cliente</h3>
-                                                    <p>{{ pedidoDetail?.persona?.nombres }} {{
-                                                        pedidoDetail?.persona?.ap_paterno }} {{
-                                                            pedidoDetail?.persona?.ap_materno }}</p>
-                                                    <p class="text-sm opacity-70">{{ pedidoDetail?.persona?.email }}</p>
-                                                    <p class="text-sm opacity-70">{{ pedidoDetail?.persona?.telefono }}
+                                                    <p>{{ pedidoTipoIglesia.persona?.nombres }} {{
+                                                        pedidoTipoIglesia.persona?.ap_paterno }} {{
+                                                            pedidoTipoIglesia.persona?.ap_materno }}</p>
+                                                    <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email }}
+                                                    </p>
+                                                    <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.telefono
+                                                    }}
                                                     </p>
                                                 </div>
 
                                                 <div class="p-4 bg-base-200 rounded-xl">
                                                     <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                                                    <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado
+                                                    <div class="badge badge-soft badge-success">{{
+                                                        pedidoTipoIglesia.estado
                                                     }}</div>
                                                     <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                     <div class="badge badge-soft"
-                                                        :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
+                                                        :class="pedidoTipoIglesia.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
                                                         {{
-                                                            pedidoDetail?.tipo == 'P' ? 'PERSONAL' :
+                                                            pedidoTipoIglesia.tipo == 'P' ? 'PERSONAL' :
                                                                 'IGLESIA' }}</div>
                                                     <p class="mt-2 text-sm">
-                                                        Total Ítems: <strong>{{ pedidoDetail?.total_cantidad }}</strong>
+                                                        Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad
+                                                        }}</strong>
                                                     </p>
                                                     <p class="text-sm">
                                                         Total Monto:
                                                         <strong class="text-success text-lg">S/ {{
-                                                            pedidoDetail?.total_monto }}</strong>
+                                                            pedidoTipoIglesia.total_monto }}</strong>
                                                     </p>
                                                 </div>
                                             </div>
 
                                             <!-- ACCIONES -->
                                             <div class="mt-6 flex flex-col md:flex-row gap-4">
-                                                <router-link :to="`/director/order/pay/${pedidoDetail?.id_pedido}`"
+                                                <router-link :to="`/director/order/pay/${pedidoTipoIglesia.id_pedido}`"
                                                     class="btn btn-primary flex-1">
                                                     Ver detalle y continuar con el pago
                                                 </router-link>
@@ -245,7 +250,7 @@
                           </thead>
 
                           <tbody>
-                            <tr v-for="(d, i) in pedidoDetail?.detalles" :key="d.id_detalle">
+                            <tr v-for="(d, i) in pedidoTipoIglesia.detalles" :key="d.id_detalle">
                               <td>{{ i + 1 }}</td>
                               <td>
                                 <div class="font-semibold">{{ d.material.nombre }}</div>
@@ -262,7 +267,7 @@
                       <div class="mt-6 flex justify-end">
                         <div class="text-right">
                           <p class="text-lg font-semibold">Total:
-                            <span class="text-success text-xl">S/ {{ pedidoDetail?.total_monto }}</span>
+                            <span class="text-success text-xl">S/ {{ pedidoTipoIglesia.total_monto }}</span>
                           </p>
                         </div>
                       </div>
@@ -399,6 +404,11 @@ const messageSuccces = ref(false)
 const isDirectorAuthenticated = computed(() => {
     return localStorage.getItem('isDirectorAuth') === 'true';
 });
+
+const pedidoTipoIglesia = computed(() => {
+    if (!pedidoDetail.value || !Array.isArray(pedidoDetail.value)) return null
+    return pedidoDetail.value.find((p: any) => p.tipo === 'I') || null
+})
 
 const selectPersona = async (persona: any) => {
     selectedPersona.value = persona;

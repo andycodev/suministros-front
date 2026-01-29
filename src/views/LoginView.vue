@@ -2,6 +2,10 @@
     <div class="min-h-screen bg-base-200 flex items-center justify-center p-4">
         <div class="card w-full max-w-sm bg-base-100 shadow-2xl">
             <div class="card-body">
+                <div class="card-header text-center">
+                    <h1 class="text-2xl font-bold">Iniciar Sesión</h1>
+                    <h2 class="text-sm font-semibold">Director de Publicaciones</h2>
+                </div>
                 <form @submit.prevent="handleLogin" class="space-y-4">
 
                     <div v-if="isErrorLogin" class="alert alert-error shadow-lg py-2">
@@ -25,6 +29,9 @@
                             :class="{ 'loading': isPendingLogin }" :disabled="isPendingLogin">
                             {{ isPendingLogin ? 'Verificando...' : 'Entrar al Sistema' }}
                         </button>
+                        <router-link to="/order" class="btn btn-outline btn-block btn-warning mt-4">
+                            Volver al pedidos
+                        </router-link>
                     </div>
                 </form>
             </div>
