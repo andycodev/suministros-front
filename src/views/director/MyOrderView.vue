@@ -102,7 +102,7 @@
                                             <div class="p-4 bg-base-200 rounded-xl">
                                                 <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                                                 <div class="badge badge-soft badge-success">{{ pedidoTipoIglesia.estado
-                                                }}</div>
+                                                    }}</div>
                                                 <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                 <div class="badge badge-soft"
                                                     :class="pedidoTipoIglesia.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
@@ -239,9 +239,6 @@ const messageSuccces = ref(false)
 
 const userData = computed(() => {
     const data = localStorage.getItem('directorData');
-    if (data && !pedidoDetail.value) {
-        refetchMaterialesIglesia();
-    }
     return data ? JSON.parse(data) : null;
 });
 
@@ -265,8 +262,13 @@ const selectPersona = async () => {
 
     const tienePedidoPrevio =
         pedidoDetail.value &&
-        Array.isArray(pedidoDetail.value.detalles) &&
-        pedidoDetail.value.detalles.length > 0;
+        Array.isArray(pedidoDetail.value) &&
+        pedidoDetail.value.some((p: any) =>
+            p.tipo === 'I' &&
+            p.detalles &&
+            Array.isArray(p.detalles) &&
+            p.detalles.length > 0
+        );
 
     // Si NO tiene pedido → cargamos materiales
     if (!tienePedidoPrevio) {
@@ -338,6 +340,11 @@ const enviarPedido = async () => {
     try {
         await createPedido(pedidoPayload.value);
         messageSuccces.value = true;
+        // Reset materials list after successful order
+        materiales.value = [];
+        materialesIglesia.value = [];
+        selectedPersona.value = null;
+        searchQuery.value = '';
         setTimeout(() => {
             messageSuccces.value = false;
         }, 3000);
@@ -349,6 +356,11 @@ const enviarPedido = async () => {
 watch(isSuccessCreatePedido, (isSuccess) => {
     if (isSuccess) {
         messageSuccces.value = true;
+        // Reset materials list after successful order
+        materiales.value = [];
+        materialesIglesia.value = [];
+        selectedPersona.value = null;
+        searchQuery.value = '';
         setTimeout(() => {
             messageSuccces.value = false;
         }, 3000);
