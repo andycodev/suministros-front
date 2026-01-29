@@ -1,12 +1,13 @@
 import { ref, computed } from 'vue';
-import { useRouter } from 'vue-router';
+import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn } from '@/services/pedido.service';
 
 const usePedido = () => {
 
     const queryClient: any = useQueryClient();
-    const router: any = useRouter()
+    const route = useRoute();
+    const router = useRouter();
     const selectedPersona: any = ref(null);
     const materiales: any = ref([])
 
@@ -64,11 +65,16 @@ const usePedido = () => {
             mutationKey: ['create-pedido'],
             mutationFn: (payload) => createPedidoFn(payload),
             onSuccess: (data) => {
-                console.log('dataResponse', data)
                 const { id_pedido } = data;
                 if (id_pedido) {
-                    const routePath = `/order/pay/${id_pedido}`;
-                    router.push(routePath);
+                    // 1. Detectamos si la ruta actual contiene "/director"
+                    const isDirector = route.path.includes('/director');
+
+                    // 2. Construimos la ruta base según el caso
+                    const basePath = isDirector ? '/director/order/pay' : '/order/pay';
+
+                    // 3. Redireccionamos
+                    router.push(`${basePath}/${id_pedido}`);
                 }
                 return data;
             }
