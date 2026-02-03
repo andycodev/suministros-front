@@ -12,8 +12,9 @@
                         </label>
                         <select v-model="filters.tipo" class="select select-bordered select-sm w-full"
                             @change="() => refetchMisPedidos()">
-                            <option disabled :value="null" :selected="filters.tipo == null">Seleccione el
-                                tipo</option>
+                            <option value="">Todos</option>
+                            <!-- <option disabled :value="null" :selected="filters.tipo == null">Seleccione el
+                                tipo</option> -->
                             <option v-for="tipoPedido in tipoPedidos" :key="tipoPedido.id" :value="tipoPedido.value">
                                 {{ tipoPedido.nombre }}
                             </option>
@@ -27,8 +28,9 @@
                         </label>
                         <select v-model="filters.modalidad" class="select select-bordered select-sm w-full"
                             @change="() => refetchMisPedidos()">
-                            <option disabled :value="null" :selected="filters.modalidad == null">Seleccione el
-                                modalidad</option>
+                            <option value="">Todos</option>
+                            <!--  <option disabled :value="null" :selected="filters.modalidad == null">Seleccione el
+                                modalidad</option> -->
                             <option v-for="modalidadPedido in modalidadPedidos" :key="modalidadPedido.id"
                                 :value="modalidadPedido.value">
                                 {{ modalidadPedido.nombre }}
@@ -43,8 +45,9 @@
                         </label>
                         <select v-model="filters.estado" class="select select-bordered select-sm w-full"
                             @change="() => refetchMisPedidos()">
-                            <option disabled :value="null" :selected="filters.estado == null">Seleccione el
-                                estado</option>
+                            <option value="">Todos</option>
+                            <!--  <option disabled :value="null" :selected="filters.estado == null">Seleccione el
+                                estado</option> -->
                             <option v-for="estadoPedido in estadoPedidos" :key="estadoPedido.id"
                                 :value="estadoPedido.value">
                                 {{ estadoPedido.nombre }}
@@ -127,7 +130,9 @@
                                     <BadgeEstadoPedido :estado="pedido.estado" />
                                 </td>
                                 <td class="text-center">
-                                    <button class="btn btn-primary btn-xs">Detalles</button>
+                                    <button class="btn btn-primary btn-xs" @click.prevent="openModal(pedido, 'detail')">
+                                        Detalles
+                                    </button>
                                 </td>
                             </tr>
                         </tbody>
@@ -136,6 +141,8 @@
             </div>
         </div>
     </div>
+    <PedidoDetailModal v-if="dialogOpen && modalType == 'detail'" :dialogOpen="dialogOpen" :data="data" :key="modalType"
+        @close-modal="closeModal"></PedidoDetailModal>
 </template>
 
 <script setup lang="ts">
@@ -144,6 +151,7 @@ import useReport from '@/composables/useReport';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
+import PedidoDetailModal from '@/components/Dialog/PedidoDetailModal.vue';
 
 const { filters, useGetMisPedidos, tipoPedidos, modalidadPedidos, estadoPedidos } = useReport();
 
@@ -159,17 +167,23 @@ const debouncedRefetch = () => {
     }, 500);
 };
 
-// Función para obtener clase del badge según el estado
-const getEstadoBadgeClass = (estado: string) => {
-    switch (estado) {
-        case 'CREADO':
-            return 'badge-info';
-        case 'PAGADO':
-            return 'badge-success';
-        case 'PENDIENTE':
-            return 'badge-warning';
-        default:
-            return 'badge-neutral';
-    }
+/* Modal */
+const dialogOpen = ref(false);
+const modalType = ref('');
+const data = ref({});
+
+const openModal = (datos: any, action: any) => {
+    dialogOpen.value = true;
+    modalType.value = action;
+    data.value = datos;
+    console.log('dataModal: ', data.value);
+    console.log('typeModal: ', modalType.value);
+};
+
+const closeModal = (cancel: any) => {
+    dialogOpen.value = false;
+    modalType.value = '';
+    data.value = {};
+    console.log('cancelar', cancel);
 };
 </script>

@@ -12,9 +12,9 @@ const useReport = () => {
     //const queryClient: any = useQueryClient()
     const filters: any = ref({
         id_persona: userData.value?.id_persona ?? null,
-        tipo: null,
-        modalidad: null,
-        estado: null,
+        tipo: '',
+        modalidad: '',
+        estado: '',
         codigo: null,
     })
 
