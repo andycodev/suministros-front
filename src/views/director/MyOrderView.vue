@@ -64,7 +64,7 @@
                     </div>
                     <div class="w-full max-w-3xl mx-auto space-y-3">
                         <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
-                        <template v-if="pedidoTipoIglesia">
+                        <template v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.id_persona)">
                             <div class="max-w-4xl mx-auto p-6">
                                 <!-- Header -->
                                 <div class="card bg-base-100 shadow-xl mb-6 border border-base-300">
@@ -228,7 +228,7 @@ import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
-const { useSearchPersona } = usePersona()
+const { userData } = usePersona()
 const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesIglesia, useCreatePedido } = usePedido()
 const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, refetch: refetchMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
@@ -237,10 +237,6 @@ const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPe
 const searchQuery = ref('')
 const messageSuccces = ref(false)
 
-const userData = computed(() => {
-    const data = localStorage.getItem('directorData');
-    return data ? JSON.parse(data) : null;
-});
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDetail.value || !Array.isArray(pedidoDetail.value)) return null
@@ -265,6 +261,7 @@ const selectPersona = async () => {
         Array.isArray(pedidoDetail.value) &&
         pedidoDetail.value.some((p: any) =>
             p.tipo === 'I' &&
+            p.modalidad === 'V' &&
             p.detalles &&
             Array.isArray(p.detalles) &&
             p.detalles.length > 0
@@ -327,7 +324,9 @@ const totalPrecio = computed(() =>
 
 const pedidoPayload: any = computed(() => ({
     id_persona: userData.value?.id_persona ?? null,
+    id_destino: userData.value?.id_persona ?? null,
     tipo: 'I',
+    modalidad: 'V',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({

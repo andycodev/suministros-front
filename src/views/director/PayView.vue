@@ -39,7 +39,7 @@
                 <div class="modal-action">
                     <button class="btn btn-ghost" @click="showCardModal = false">Cancelar</button>
                     <button class="btn btn-primary" @click="processCardPayment">Pagar S/ {{ pedidoDetail?.total_monto
-                    }}</button>
+                        }}</button>
                 </div>
             </div>
         </div>
@@ -76,7 +76,6 @@
                         pago.
                     </span>
                 </div>
-
                 <!-- HEADER DEL PEDIDO -->
                 <div class="flex flex-col gap-1">
                     <h2 class="text-2xl font-bold">
@@ -93,22 +92,31 @@
                     <!-- INFO DEL CLIENTE -->
                     <div class="md:col-span-1 p-4 bg-base-200 rounded-xl space-y-1">
                         <h3 class="font-semibold">Cliente</h3>
-                        <p>{{ pedidoDetail?.persona.nombres }} {{ pedidoDetail?.persona.ap_paterno }}</p>
-                        <p class="text-sm opacity-70">{{ pedidoDetail?.persona.email }}</p>
-                        <p class="text-sm opacity-70">{{ pedidoDetail?.persona.telefono }}</p>
+                        <p>{{ pedidoDetail?.destino.nombres }} {{ pedidoDetail?.destino.ap_paterno }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail?.destino.email }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail?.destino.telefono }}</p>
                     </div>
 
                     <!-- INFO DEL PEDIDO -->
                     <div class="md:col-span-1 p-4 bg-base-200 rounded-xl space-y-1">
                         <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                        <div class="badge badge-soft badge-success">{{ pedidoDetail?.estado
-                            }}</div>
+                        <div class="badge badge-soft badge-success">
+                            {{ pedidoDetail?.estado }}
+                        </div>
                         <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                         <div class="badge badge-soft"
                             :class="pedidoDetail?.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
                             {{
                                 pedidoDetail?.tipo == 'P' ? 'PERSONAL' :
-                                    'IGLESIA' }}</div>
+                                    'IGLESIA' }}
+                        </div>
+                        <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
+                        <div class="badge badge-soft"
+                            :class="pedidoDetail?.modalidad == 'P' ? 'badge-accent' : 'badge-secondary'">
+                            {{
+                                pedidoDetail?.modalidad == 'P' ? 'PRESENCIAL' :
+                                    'VIRTUAL' }}
+                        </div>
                         <p class="text-sm mt-2">
                             Ítems: <strong>{{ pedidoDetail?.total_cantidad }}</strong>
                         </p>

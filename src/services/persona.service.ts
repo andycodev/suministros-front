@@ -7,3 +7,8 @@ export const searchPersonaFn = async (filters: any) => {
     return data;
 }
 
+export const getPersonaByIdFn = async (id_persona: number) => {
+    const { data } = await baseApi.get(`${endPointUrl}/personas/${id_persona}`);
+    return data;
+}
+

@@ -38,7 +38,7 @@
                         <router-link to="/director/my-order" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/my-order') }">
                             <UserIcon class="h-5 w-5" />
-                            <span>Mi pedido</span>
+                            <span>Pedido de iglesia</span>
                         </router-link>
                     </li>
                     <li>
@@ -49,7 +49,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
                             </svg>
-                            <span>Pedidos</span>
+                            <span>Realizar Pedido</span>
                         </router-link>
                     </li>
                     <li>
@@ -71,7 +71,7 @@
                                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                                     d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v6m9-1h-6" />
                             </svg>
-                            <span>Reportes</span>
+                            <span>Mis Pedidos</span>
                         </router-link>
                     </li>
                     <li>
@@ -153,8 +153,10 @@ import { computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
 import { HomeIcon, UserIcon } from '@heroicons/vue/24/outline'
 import useAuth from '@/composables/useAuth';
+import usePersona from '@/composables/usePersona';
 
 const { useLogout } = useAuth();
+const { userData } = usePersona();
 
 const router = useRouter();
 const route = useRoute();
@@ -167,12 +169,6 @@ const logout = () => {
     useLogout();
     router.push('/login');
 };
-
-const userData = computed(() => {
-    const data = localStorage.getItem('directorData');
-    // Si existe, lo convertimos de texto a objeto, si no, devolvemos null
-    return data ? JSON.parse(data) : null;
-});
 </script>
 
 <style scoped>

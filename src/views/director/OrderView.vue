@@ -3,62 +3,34 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div class="rounded-xl overflow-hidden border border-gray-100 max-w-6xl mx-auto">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
-                <div class="col-span-1 space-y-5 p-6 border-r border-gray-100 md:border-gray-200">
+                <div v-if="personaData" class="col-span-1 space-y-5 p-6 border-r border-gray-100 md:border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Filtros de Búsqueda</h2>
-
                     <fieldset class="form-control w-full">
                         <label class="label">
                             <span class="label-text text-sm font-medium text-gray-600">Unión</span>
                         </label>
-                        <select v-model="filters.id_union" class="select select-bordered w-full">
-                            <option disabled selected>Seleccione la Unión</option>
-                            <option v-for="iglesiaUnion in iglesiaUnions" :key="iglesiaUnion.id_union"
-                                :value="iglesiaUnion.id_union">
-                                {{ iglesiaUnion.nombre }}
-                            </option>
-                        </select>
+                        <p class="text-sm text-gray-600">{{ personaData?.union }}</p>
                     </fieldset>
 
                     <fieldset class="form-control w-full">
                         <label class="label">
                             <span class="label-text text-sm font-medium text-gray-600">Campo</span>
                         </label>
-                        <select v-model="filters.id_campo" class="select select-bordered w-full">
-                            <option disabled :value="null" :selected="filters.id_campo == null">Seleccione el Campo
-                            </option>
-                            <option v-for="iglesiaCampo in iglesiaCampos" :key="iglesiaCampo.id_campo"
-                                :value="iglesiaCampo.id_campo">
-                                {{ iglesiaCampo.nombre }}
-                            </option>
-                        </select>
+                        <p class="text-sm text-gray-600">{{ personaData?.campo }}</p>
                     </fieldset>
 
                     <fieldset class="form-control w-full">
                         <label class="label">
                             <span class="label-text text-sm font-medium text-gray-600">Distrito</span>
                         </label>
-                        <select v-model="filters.id_distrito" class="select select-bordered w-full">
-                            <option disabled :value="null" :selected="filters.id_distrito == null">Seleccione el
-                                Distrito</option>
-                            <option v-for="iglesiaDistrito in iglesiaDistritos" :key="iglesiaDistrito.id_distrito"
-                                :value="iglesiaDistrito.id_distrito">
-                                {{ iglesiaDistrito.nombre }}
-                            </option>
-                        </select>
+                        <p class="text-sm text-gray-600">{{ personaData?.distrito }}</p>
                     </fieldset>
 
                     <fieldset class="form-control w-full">
                         <label class="label">
                             <span class="label-text text-sm font-medium text-gray-600">Iglesia</span>
                         </label>
-                        <select v-model="filters.id_iglesia" class="select select-bordered w-full">
-                            <option disabled :value="null" :selected="filters.id_iglesia == null">Seleccione la Iglesia
-                            </option>
-                            <option v-for="iglesiaIglesia in iglesiaIglesias" :key="iglesiaIglesia.id_iglesia"
-                                :value="iglesiaIglesia.id_iglesia">
-                                {{ iglesiaIglesia.nombre }}
-                            </option>
-                        </select>
+                        <p class="text-sm text-gray-600">{{ personaData?.iglesia }}</p>
                     </fieldset>
 
                     <fieldset class="form-control w-full">
@@ -153,9 +125,8 @@
                                 </div>
                             </div>
                         </div>
-
                         <div class="w-full max-w-3xl mx-auto space-y-3" v-if="selectedPersona">
-                            <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
+                            <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino">Cargando ...</div>
                             <template v-if="pedidoTipoIglesia">
                                 <div class="max-w-4xl mx-auto p-6">
                                     <!-- Header -->
@@ -382,21 +353,21 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, computed, watch } from 'vue';
-import { useRoute } from 'vue-router'
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
-const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
+const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona, useGetPersonaById, userData } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()
 const { data: iglesiaCampos } = useGetIglesiaCamposByUnion()
 const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
+const { data: personaData, isPending: isPendingPersonaData } = useGetPersonaById()
 
-const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesIglesia, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido } = usePedido()
 const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, isPending: isPendingMaterialesIglesia, refetch: refetchMaterialesIglesia, isRefetching: isRefetchingMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
-const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPedidoDetail, isRefetching: isRefetchingPedidoDetail } = useShowPedidoByIdPersona()
+const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino, isRefetching: isRefetchingPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
@@ -405,9 +376,25 @@ const isDirectorAuthenticated = computed(() => {
     return localStorage.getItem('isDirectorAuth') === 'true';
 });
 
+watch(
+    () => personaData.value,
+    (data) => {
+        if (!data) return;
+
+        filters.value = {
+            id_union: data.id_union ?? null,
+            id_campo: data.id_campo ?? null,
+            id_distrito: data.id_distrito ?? null,
+            id_iglesia: data.id_iglesia ?? null,
+            documento: null,
+        };
+    },
+    { immediate: true }
+);
+
 const pedidoTipoIglesia = computed(() => {
-    if (!pedidoDetail.value || !Array.isArray(pedidoDetail.value)) return null
-    return pedidoDetail.value.find((p: any) => p.tipo === 'I') || null
+    if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
+    return pedidoDestino.value.find((p: any) => p.tipo === 'I') || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -415,17 +402,18 @@ const selectPersona = async (persona: any) => {
     searchQuery.value = '';
 
     // 🔥 RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
-    pedidoDetail.value = null;
+    pedidoDestino.value = null;
     materialesIglesia.value = [];
 
     // 🔥 Vuelve a refetchear pasando el id de la persona seleccionada
-    await refetchPedidoDetail();
+    await refetchPedidoDestino();
 
     const tienePedidoPrevio =
-        pedidoDetail.value &&
-        Array.isArray(pedidoDetail.value) &&
-        pedidoDetail.value.some((p: any) =>
+        pedidoDestino.value &&
+        Array.isArray(pedidoDestino.value) &&
+        pedidoDestino.value.some((p: any) =>
             p.tipo === 'I' &&
+            p.modalidad === 'V' &&
             p.detalles &&
             Array.isArray(p.detalles) &&
             p.detalles.length > 0
@@ -492,8 +480,10 @@ const totalPrecio = computed(() =>
 );
 
 const pedidoPayload: any = computed(() => ({
-    id_persona: selectedPersona.value?.id_persona ?? null,
+    id_persona: userData.value?.id_persona ?? null,
+    id_destino: selectedPersona.value?.id_persona ?? null,
     tipo: 'I',
+    modalidad: 'V',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({
@@ -548,7 +538,7 @@ watch(() => filters.documento, debouncedSearch);
 
 const searPerson = async () => {
     selectedPersona.value = null;
-    pedidoDetail.value = null;
+    pedidoDestino.value = null;
     materialesIglesia.value = [];
     searchQuery.value = '';
     await refetchPersonas();

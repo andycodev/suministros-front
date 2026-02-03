@@ -22,6 +22,11 @@ export const showPedidoByIdPersonaFn = async (id_persona: number) => {
     return data;
 }
 
+export const showPedidoByIdDestinoFn = async (id_destino: number) => {
+    const { data } = await baseApi.get(`${endPointUrl}/pedidos/destino/${id_destino}`);
+    return data;
+}
+
 export const createPedidoFn = async (payload: any) => {
     const { data } = await baseApi.post(`${endPointUrl}/pedidos`, payload);
     return data;

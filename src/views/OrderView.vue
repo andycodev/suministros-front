@@ -10,7 +10,8 @@
             <label class="label">
               <span class="label-text text-sm font-medium text-gray-600">Unión</span>
             </label>
-            <select v-model="filters.id_union" class="select select-bordered w-full">
+            <select v-model="filters.id_union" @change="setUnion(filters.id_union)"
+              class="select select-bordered w-full">
               <option disabled selected>Seleccione la Unión</option>
               <option v-for="iglesiaUnion in iglesiaUnions" :key="iglesiaUnion.id_union" :value="iglesiaUnion.id_union">
                 {{ iglesiaUnion.nombre }}
@@ -22,7 +23,8 @@
             <label class="label">
               <span class="label-text text-sm font-medium text-gray-600">Campo</span>
             </label>
-            <select v-model="filters.id_campo" class="select select-bordered w-full">
+            <select v-model="filters.id_campo" @change="setCampo(filters.id_campo)"
+              class="select select-bordered w-full">
               <option disabled :value="null" :selected="filters.id_campo == null">Seleccione el Campo</option>
               <option v-for="iglesiaCampo in iglesiaCampos" :key="iglesiaCampo.id_campo" :value="iglesiaCampo.id_campo">
                 {{ iglesiaCampo.nombre }}
@@ -34,7 +36,8 @@
             <label class="label">
               <span class="label-text text-sm font-medium text-gray-600">Distrito</span>
             </label>
-            <select v-model="filters.id_distrito" class="select select-bordered w-full">
+            <select v-model="filters.id_distrito" @change="setDistrito(filters.id_distrito)"
+              class="select select-bordered w-full">
               <option disabled :value="null" :selected="filters.id_distrito == null">Seleccione el Distrito</option>
               <option v-for="iglesiaDistrito in iglesiaDistritos" :key="iglesiaDistrito.id_distrito"
                 :value="iglesiaDistrito.id_distrito">
@@ -147,7 +150,7 @@
             </div>
 
             <div class="w-full max-w-3xl mx-auto space-y-3">
-              <div v-if="isLoadingMaterialesPersona || isLoadingPedidoDetail">Cargando ...</div>
+              <div v-if="isLoadingMaterialesPersona || isLoadingPedidoDestino">Cargando ...</div>
               <template v-if="pedidoTipoPersonal">
                 <div class="max-w-4xl mx-auto p-6">
                   <!-- Header -->
@@ -231,7 +234,7 @@
                           </thead>
 
                           <tbody>
-                            <tr v-for="(d, i) in pedidoDetail?.detalles" :key="d.id_detalle">
+                            <tr v-for="(d, i) in pedidoDestino?.detalles" :key="d.id_detalle">
                               <td>{{ i + 1 }}</td>
                               <td>
                                 <div class="font-semibold">{{ d.material.nombre }}</div>
@@ -248,7 +251,7 @@
                       <div class="mt-6 flex justify-end">
                         <div class="text-right">
                           <p class="text-lg font-semibold">Total:
-                            <span class="text-success text-xl">S/ {{ pedidoDetail?.total_monto }}</span>
+                            <span class="text-success text-xl">S/ {{ pedidoDestino?.total_monto }}</span>
                           </p>
                         </div>
                       </div>
@@ -402,22 +405,22 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, watch } from 'vue';
+import { ref, watchEffect, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 
-const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
+const { filters, setUnion, setCampo, setDistrito, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()
 const { data: iglesiaCampos } = useGetIglesiaCamposByUnion()
 const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
 
-const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesPersona, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesPersona, useCreatePedido } = usePedido()
 const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
-const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPedidoDetail, isRefetching: isRefetchingPedidoDetail } = useShowPedidoByIdPersona()
+const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino, isRefetching: isRefetchingPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
@@ -428,8 +431,8 @@ const isDirectorAuthenticated = computed(() => {
 });
 
 const pedidoTipoPersonal = computed(() => {
-  if (!pedidoDetail.value || !Array.isArray(pedidoDetail.value)) return null
-  return pedidoDetail.value.find((p: any) => p.tipo === 'P') || null
+  if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
+  return pedidoDestino.value.find((p: any) => p.tipo === 'P' || p.tipo === 'I') || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -437,17 +440,18 @@ const selectPersona = async (persona: any) => {
   searchQuery.value = '';
 
   // RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
-  pedidoDetail.value = null;
+  pedidoDestino.value = null;
   materialesPersona.value = [];
 
   // Vuelve a refetchear pasando el id de la persona seleccionada
-  await refetchPedidoDetail();
+  await refetchPedidoDestino();
 
   const tienePedidoPrevio =
-    pedidoDetail.value &&
-    Array.isArray(pedidoDetail.value) &&
-    pedidoDetail.value.some((p: any) =>
+    pedidoDestino.value &&
+    Array.isArray(pedidoDestino.value) &&
+    pedidoDestino.value.some((p: any) =>
       p.tipo === 'P' &&
+      p.modalidad === 'P' &&
       p.detalles &&
       Array.isArray(p.detalles) &&
       p.detalles.length > 0
@@ -514,7 +518,9 @@ const totalPrecio = computed(() =>
 
 const pedidoPayload: any = computed(() => ({
   id_persona: selectedPersona.value?.id_persona ?? null,
+  id_destino: selectedPersona.value?.id_persona ?? null,
   tipo: 'P',
+  modalidad: 'P',
   detalles: materiales.value
     .filter((item: any) => item.cantidad > 0)
     .map((item: any) => ({
@@ -556,7 +562,7 @@ watch(isSuccessCreatePedido, (isSuccess) => {
 
 const searPerson = async () => {
   selectedPersona.value = null;
-  pedidoDetail.value = null;
+  pedidoDestino.value = null;
   materialesPersona.value = [];
   searchQuery.value = '';
   await refetchPersonas();
@@ -579,5 +585,13 @@ const debouncedSearch = debounce(() => {
 }, 500);
 
 watch(() => filters.documento, debouncedSearch);
+
+// Limpiar estado al montar el componente para evitar materiales residuales
+onMounted(() => {
+  selectedPersona.value = null;
+  materiales.value = [];
+  searchQuery.value = '';
+  filters.documento = '';
+});
 
 </script>

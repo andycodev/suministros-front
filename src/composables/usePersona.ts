@@ -1,7 +1,7 @@
 import { ref, watch, computed } from 'vue';
 import { useQuery, /* useQueryClient */ } from '@tanstack/vue-query';
 import { getIglesiaUnionsFn, getIglesiaCamposByUnion, getIglesiaDistritosByCampo, getIglesiaIglesiasByDistrito } from '@/services/setup.service';
-import { searchPersonaFn } from '@/services/persona.service';
+import { getPersonaByIdFn, searchPersonaFn } from '@/services/persona.service';
 
 const usePersona = () => {
 
@@ -14,6 +14,31 @@ const usePersona = () => {
         id_iglesia: null,
         documento: null,
     })
+
+    /* --- Acciones en Cascada --- */
+
+    // Si cambio la Unión, limpio todo hacia abajo
+    const setUnion: any = (id_union: number) => {
+        filters.value.id_union = id_union;
+        setCampo(null); // Llamamos al siguiente nivel
+    };
+
+    // Si cambio el Campo, limpio los distritos e iglesias
+    const setCampo: any = (id_campo: number) => {
+        filters.value.id_campo = id_campo;
+        setDistrito(null); // Llamamos al siguiente nivel
+    };
+
+    // Si cambio el Distrito, limpio la iglesia
+    const setDistrito: any = (id_distrito: number) => {
+        filters.value.id_distrito = id_distrito;
+        filters.value.id_iglesia = null;
+    };
+
+    const userData = computed(() => {
+        const data = localStorage.getItem('directorData');
+        return data ? JSON.parse(data) : null;
+    });
 
     /* Methods */
     function useGetIglesiaUnions() {
@@ -39,7 +64,7 @@ const usePersona = () => {
             },
             enabled: computed(() => !!filters.value.id_union),
         });
-        watch(() => filters.value.id_union, () => filters.value.id_campo = null);
+        // watch(() => filters.value.id_union, () => filters.value.id_campo = null);
         return { data, isPending }
     }
 
@@ -53,7 +78,7 @@ const usePersona = () => {
             },
             enabled: computed(() => !!filters.value.id_campo),
         });
-        watch(() => filters.value.id_campo, () => filters.value.id_distrito = null);
+        // watch(() => filters.value.id_campo, () => filters.value.id_distrito = null);
         return { data, isPending }
     }
 
@@ -67,7 +92,7 @@ const usePersona = () => {
             },
             enabled: computed(() => !!filters.value.id_distrito),
         });
-        watch(() => filters.value.id_distrito, () => filters.value.id_iglesia = null);
+        // watch(() => filters.value.id_distrito, () => filters.value.id_iglesia = null);
         return { data, isPending }
     }
 
@@ -83,14 +108,30 @@ const usePersona = () => {
         return { data, isPending, refetch, isRefetching }
     }
 
+    function useGetPersonaById() {
+        const { data, isPending, refetch, isRefetching } = useQuery({
+            queryKey: computed(() => ['get-persona-by-id', userData.value?.id_persona]),
+            queryFn: async () => {
+                const data = await getPersonaByIdFn(userData.value?.id_persona);
+                return data
+            },
+            enabled: computed(() => true),
+        });
+        return { data, isPending, refetch, isRefetching }
+    }
 
     return {
         filters,
+        setUnion,
+        setCampo,
+        setDistrito,
         useGetIglesiaUnions,
         useGetIglesiaCamposByUnion,
         useGetIglesiaDistritosByCampo,
         useGetIglesiaIglesiasByDistrito,
-        useSearchPersona
+        useSearchPersona,
+        useGetPersonaById,
+        userData
     }
 }
 
