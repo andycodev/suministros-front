@@ -1,6 +1,7 @@
 import { ref, computed } from 'vue';
 import { useQuery, /* useQueryClient */ } from '@tanstack/vue-query';
 import { getMisPedidosFn } from '@/services/report.service';
+import { getTipoPedidosFn, getModalidadPedidosFn, getEstadoPedidosFn } from '@/services/setup.service';
 import usePersona from '@/composables/usePersona';
 
 
@@ -17,6 +18,10 @@ const useReport = () => {
         codigo: null,
     })
 
+    const tipoPedidos = getTipoPedidosFn();
+    const modalidadPedidos = getModalidadPedidosFn();
+    const estadoPedidos = getEstadoPedidosFn();
+
     function useGetMisPedidos() {
         const { data, isPending, refetch, isRefetching } = useQuery({
             queryKey: computed(() => ['mis-pedidos', filters.value]),
@@ -32,6 +37,9 @@ const useReport = () => {
     return {
         filters,
         useGetMisPedidos,
+        tipoPedidos,
+        modalidadPedidos,
+        estadoPedidos,
     }
 }
 

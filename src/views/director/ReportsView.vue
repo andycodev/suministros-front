@@ -1,40 +1,139 @@
 <template>
-    <div class="p-4">
-        <div class="overflow-x-auto shadow-lg rounded-lg">
-            <table class="table w-full">
-                <thead>
-                    <tr class="bg-base-200">
-                        <th>ID</th>
-                        <th>Código</th>
-                        <th>Solicitante</th>
-                        <th>Destinatario</th>
-                        <th>Total</th>
-                        <th>Estado</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    <tr v-for="pedido in misPedidos" :key="pedido.id_pedido" class="hover">
-                        <th>{{ pedido.id_pedido }}</th>
-                        <td class="font-mono font-bold text-primary">
-                            {{ pedido.codigo }}
-                        </td>
-                        <td>
-                            {{ pedido.persona.nombres }} {{ pedido.persona.ap_paterno }}
-                        </td>
-                        <td>
-                            {{ pedido.destino.nombres }} {{ pedido.destino.ap_paterno }}
-                        </td>
-                        <td class="font-semibold">
-                            ${{ pedido.total_monto }}
-                        </td>
-                        <td>
-                            <span class="badge badge-success gap-2">
-                                {{ pedido.estado }}
-                            </span>
-                        </td>
-                    </tr>
-                </tbody>
-            </table>
+    <div class="p-6">
+        <h1 class="text-2xl font-bold mb-6">Mis Pedidos</h1>
+        <!-- Filtros -->
+        <div class="card bg-base-100 shadow-sm mb-6">
+            <div class="card-body">
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Tipo -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Tipo</span>
+                        </label>
+                        <select v-model="filters.tipo" class="select select-bordered select-sm w-full"
+                            @change="() => refetchMisPedidos()">
+                            <option disabled :value="null" :selected="filters.tipo == null">Seleccione el
+                                tipo</option>
+                            <option v-for="tipoPedido in tipoPedidos" :key="tipoPedido.id" :value="tipoPedido.value">
+                                {{ tipoPedido.nombre }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Modalidad -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Modalidad</span>
+                        </label>
+                        <select v-model="filters.modalidad" class="select select-bordered select-sm w-full"
+                            @change="() => refetchMisPedidos()">
+                            <option disabled :value="null" :selected="filters.modalidad == null">Seleccione el
+                                modalidad</option>
+                            <option v-for="modalidadPedido in modalidadPedidos" :key="modalidadPedido.id"
+                                :value="modalidadPedido.value">
+                                {{ modalidadPedido.nombre }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Estado -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Estado</span>
+                        </label>
+                        <select v-model="filters.estado" class="select select-bordered select-sm w-full"
+                            @change="() => refetchMisPedidos()">
+                            <option disabled :value="null" :selected="filters.estado == null">Seleccione el
+                                estado</option>
+                            <option v-for="estadoPedido in estadoPedidos" :key="estadoPedido.id"
+                                :value="estadoPedido.value">
+                                {{ estadoPedido.nombre }}
+                            </option>
+                        </select>
+                    </div>
+
+                    <!-- Código -->
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text font-medium">Código</span>
+                        </label>
+                        <input v-model="filters.codigo" type="text" placeholder="Buscar código..."
+                            class="input input-bordered input-sm w-full" @input="debouncedRefetch" />
+                    </div>
+                    <!-- 
+                    <div class="form-control">
+                        <label class="label">
+                            <span class="label-text">&nbsp;</span>
+                        </label>
+                        <button class="btn btn-neutral btn-sm w-full">
+                            Filtrar
+                        </button>
+                    </div> -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Tabla -->
+        <div class="card bg-base-100 shadow-sm">
+            <div class="card-body p-0">
+                <div class="overflow-x-auto">
+                    <table class="table table-zebra table-sm">
+                        <thead>
+                            <tr class="bg-base-200">
+                                <th class="text-center">N°</th>
+                                <th class="text-center">Código</th>
+                                <th class="text-left">Solicitante</th>
+                                <th class="text-left">Destinatario</th>
+                                <th class="text-center">Total</th>
+                                <th class="text-center">Tipo</th>
+                                <th class="text-center">Modalidad</th>
+                                <th class="text-center">Estado</th>
+                                <th class="text-center">Acciones</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-if="isPendingMisPedidos">
+                                <td colspan="6" class="text-center py-8">
+                                    <span class="loading loading-spinner loading-md"></span>
+                                    <span class="ml-2">Cargando...</span>
+                                </td>
+                            </tr>
+                            <tr v-else-if="!misPedidos?.length">
+                                <td colspan="6" class="text-center py-8 text-base-content/60">
+                                    No se encontraron pedidos
+                                </td>
+                            </tr>
+                            <tr v-else v-for="(pedido, index) in misPedidos" :key="pedido.id_pedido" class="hover">
+                                <th class="font-normal text-center">{{ Number(index) + 1 }}</th>
+                                <td class="font-mono font-bold text-primary text-center">
+                                    {{ pedido.codigo }}
+                                </td>
+                                <td>
+                                    {{ pedido.persona.nombres }} {{ pedido.persona.ap_paterno }}
+                                </td>
+                                <td>
+                                    {{ pedido.destino.nombres }} {{ pedido.destino.ap_paterno }}
+                                </td>
+                                <td class="text-center font-semibold">
+                                    ${{ pedido.total_monto }}
+                                </td>
+                                <td class="text-center">
+                                    <BadgeTipoPedido :tipo="pedido.tipo" />
+                                </td>
+                                <td class="text-center">
+                                    <BadgeModalidadPedido :modalidad="pedido.modalidad" />
+                                </td>
+                                <td class="text-center">
+                                    <BadgeEstadoPedido :estado="pedido.estado" />
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn btn-primary btn-xs">Detalles</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
 </template>
@@ -42,11 +141,35 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import useReport from '@/composables/useReport';
+import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
+import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 
-const { filters, useGetMisPedidos } = useReport();
+const { filters, useGetMisPedidos, tipoPedidos, modalidadPedidos, estadoPedidos } = useReport();
 
 const { data: misPedidos, isPending: isPendingMisPedidos, refetch: refetchMisPedidos, isRefetching: isRefetchingMisPedidos } = useGetMisPedidos();
 
 
+// Debounce para el campo de código
+let timeoutId: NodeJS.Timeout;
+const debouncedRefetch = () => {
+    clearTimeout(timeoutId);
+    timeoutId = setTimeout(() => {
+        refetchMisPedidos();
+    }, 500);
+};
 
+// Función para obtener clase del badge según el estado
+const getEstadoBadgeClass = (estado: string) => {
+    switch (estado) {
+        case 'CREADO':
+            return 'badge-info';
+        case 'PAGADO':
+            return 'badge-success';
+        case 'PENDIENTE':
+            return 'badge-warning';
+        default:
+            return 'badge-neutral';
+    }
+};
 </script>

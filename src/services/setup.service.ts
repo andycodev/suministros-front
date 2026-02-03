@@ -21,3 +21,19 @@ export const getIglesiaIglesiasByDistrito = async (id_distrito: number) => {
     const { data } = await baseApi.get(`${endPointUrl}/iglesia-iglesias-by-distrito/${id_distrito}`);
     return data;
 }
+
+export const getTipoPedidosFn = () => [
+    { id: 1, value: 'P', nombre: 'Personal' },
+    { id: 2, value: 'I', nombre: 'Iglesia' },
+]
+
+export const getModalidadPedidosFn = () => [
+    { id: 1, value: 'P', nombre: 'Presencial' },
+    { id: 2, value: 'V', nombre: 'Virtual' },
+]
+
+export const getEstadoPedidosFn = () => [
+    { id: 1, value: 'CREADO', nombre: 'Creado' },
+    { id: 2, value: 'PAGADO', nombre: 'Pagado' },
+    { id: 3, value: 'PENDIENTE', nombre: 'Pendiente' },
+]
