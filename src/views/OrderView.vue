@@ -187,12 +187,12 @@
 
                         <div class="p-4 bg-base-200 rounded-xl">
                           <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                          <div class="badge badge-soft badge-success">{{ pedidoTipoPersonal.estado }}</div>
+                          <BadgeEstadoPedido :estado="pedidoTipoPersonal.estado" />
+                          <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
+                          <BadgeModalidadPedido :modalidad="pedidoTipoPersonal.modalidad" />
                           <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
-                          <div class="badge badge-soft"
-                            :class="pedidoTipoPersonal.tipo == 'P' ? 'badge-primary' : 'badge-warning'">{{
-                              pedidoTipoPersonal.tipo == 'P' ? 'PERSONAL' :
-                                'IGLESIA' }}</div>
+                          <BadgeTipoPedido :tipo="pedidoTipoPersonal.tipo" />
+
                           <p class="mt-2 text-sm">
                             Total Ítems: <strong>{{ pedidoTipoPersonal.total_cantidad }}</strong>
                           </p>
@@ -409,6 +409,9 @@ import { ref, watchEffect, computed, watch, onMounted } from 'vue';
 import { useRoute } from 'vue-router'
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
+import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
+import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const { filters, setUnion, setCampo, setDistrito, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()

@@ -1,5 +1,5 @@
 <template>
-    <dialog ref="modalRef" class="modal">
+    <div v-if="dialogOpen" class="modal modal-open">
         <div class="modal-box w-11/12 max-w-4xl">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-xl font-bold text-primary">Detalle del Pedido: {{ data?.codigo }}</h3>
@@ -53,14 +53,11 @@
                 <button class="btn btn-outline" @click="cerrarModal">Cerrar</button>
             </div>
         </div>
-        <form method="dialog" class="modal-backdrop">
-            <button @click="cerrarModal">close</button>
-        </form>
-    </dialog>
+        <div class="modal-backdrop" @click="cerrarModal"></div>
+    </div>
 </template>
 
 <script setup>
-import { ref, watch } from 'vue';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 
 const props = defineProps({
@@ -69,12 +66,5 @@ const props = defineProps({
 });
 
 const emit = defineEmits(['close-modal']);
-const modalRef = ref(null);
-
-watch(() => props.dialogOpen, (newVal) => {
-    if (newVal) modalRef.value?.showModal();
-    else modalRef.value?.close();
-});
-
-const cerrarModal = () => emit('close-modal');
+const cerrarModal = () => emit('close-modal', true);
 </script>
