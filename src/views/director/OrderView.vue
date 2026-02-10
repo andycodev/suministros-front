@@ -168,15 +168,11 @@
 
                                                 <div class="p-4 bg-base-200 rounded-xl">
                                                     <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                                                    <div class="badge badge-soft badge-success">{{
-                                                        pedidoTipoIglesia.estado
-                                                    }}</div>
+                                                    <BadgeEstadoPedido :estado="pedidoTipoIglesia.estado" />
+                                                    <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
+                                                    <BadgeModalidadPedido :modalidad="pedidoTipoIglesia.modalidad" />
                                                     <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
-                                                    <div class="badge badge-soft"
-                                                        :class="pedidoTipoIglesia.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
-                                                        {{
-                                                            pedidoTipoIglesia.tipo == 'P' ? 'PERSONAL' :
-                                                                'IGLESIA' }}</div>
+                                                    <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                     <p class="mt-2 text-sm">
                                                         Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad
                                                         }}</strong>
@@ -355,6 +351,9 @@
 import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
+import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
+import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona, useGetPersonaById, userData } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()

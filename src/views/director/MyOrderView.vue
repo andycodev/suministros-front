@@ -63,7 +63,7 @@
                         </div>
                     </div>
                     <div class="w-full max-w-3xl mx-auto space-y-3">
-                        <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDetail">Cargando ...</div>
+                        <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino">Cargando ...</div>
                         <template v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.id_persona)">
                             <div class="max-w-4xl mx-auto p-6">
                                 <!-- Header -->
@@ -101,14 +101,11 @@
 
                                             <div class="p-4 bg-base-200 rounded-xl">
                                                 <h3 class="font-semibold mb-2">Estado del Pedido</h3>
-                                                <div class="badge badge-soft badge-success">{{ pedidoTipoIglesia.estado
-                                                    }}</div>
+                                                <BadgeEstadoPedido :estado="pedidoTipoIglesia.estado" />
+                                                <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
+                                                <BadgeModalidadPedido :modalidad="pedidoTipoIglesia.modalidad" />
                                                 <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
-                                                <div class="badge badge-soft"
-                                                    :class="pedidoTipoIglesia.tipo == 'P' ? 'badge-primary' : 'badge-warning'">
-                                                    {{
-                                                        pedidoTipoIglesia.tipo == 'P' ? 'PERSONAL' :
-                                                            'IGLESIA' }}</div>
+                                                <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                 <p class="mt-2 text-sm">
                                                     Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad }}</strong>
                                                 </p>
@@ -227,20 +224,23 @@
 import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
+import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
+import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const { userData } = usePersona()
-const { selectedPersona, materiales, useShowPedidoByIdPersona, useGetMaterialesIglesia, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido } = usePedido()
 const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, refetch: refetchMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
-const { data: pedidoDetail, isLoading: isLoadingPedidoDetail, refetch: refetchPedidoDetail } = useShowPedidoByIdPersona()
+const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
 
 
 const pedidoTipoIglesia = computed(() => {
-    if (!pedidoDetail.value || !Array.isArray(pedidoDetail.value)) return null
-    return pedidoDetail.value.find((p: any) => p.tipo === 'I') || null
+    if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
+    return pedidoDestino.value.find((p: any) => p.tipo === 'I') || null
 })
 
 const selectPersona = async () => {
@@ -250,16 +250,16 @@ const selectPersona = async () => {
     searchQuery.value = '';
 
     // RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
-    pedidoDetail.value = null;
+    pedidoDestino.value = null;
     materialesIglesia.value = [];
 
     // Vuelve a refetchear pasando el id de la persona seleccionada
-    await refetchPedidoDetail();
+    await refetchPedidoDestino();
 
     const tienePedidoPrevio =
-        pedidoDetail.value &&
-        Array.isArray(pedidoDetail.value) &&
-        pedidoDetail.value.some((p: any) =>
+        pedidoDestino.value &&
+        Array.isArray(pedidoDestino.value) &&
+        pedidoDestino.value.some((p: any) =>
             p.tipo === 'I' &&
             p.modalidad === 'V' &&
             p.detalles &&

@@ -435,7 +435,7 @@ const isDirectorAuthenticated = computed(() => {
 
 const pedidoTipoPersonal = computed(() => {
   if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-  return pedidoDestino.value.find((p: any) => p.tipo === 'P' || p.tipo === 'I') || null
+  return pedidoDestino.value.find((p: any) => p.tipo === 'P') || null
 })
 
 const selectPersona = async (persona: any) => {
