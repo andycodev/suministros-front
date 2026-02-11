@@ -115,7 +115,13 @@
                                     {{ pedido.persona.nombres }} {{ pedido.persona.ap_paterno }}
                                 </td>
                                 <td>
-                                    {{ pedido.destino.nombres }} {{ pedido.destino.ap_paterno }}
+                                    <span
+                                        v-if="pedido.tipo === 'I' && pedido.modalidad === 'V' && pedido.id_persona === pedido.destino?.id_persona">
+                                        {{ pedido.destino?.iglesia?.nombre }}
+                                    </span>
+                                    <span v-else>
+                                        {{ pedido.destino?.nombres }} {{ pedido.destino?.ap_paterno }}
+                                    </span>
                                 </td>
                                 <td class="text-center font-semibold">
                                     ${{ pedido.total_monto }}

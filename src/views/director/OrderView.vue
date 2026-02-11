@@ -54,7 +54,7 @@
                             <!-- Pedido para: -->
                             <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{
                                 selectedPersona?.ap_materno
-                                }}</strong>
+                            }}</strong>
                         </div>
                         <div class="divider divider-neutral">Resumen del pedido</div>
                         <p class="text-sm text-gray-600">
@@ -162,7 +162,7 @@
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email }}
                                                     </p>
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.telefono
-                                                    }}
+                                                        }}
                                                     </p>
                                                 </div>
 
@@ -175,7 +175,7 @@
                                                     <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                     <p class="mt-2 text-sm">
                                                         Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad
-                                                        }}</strong>
+                                                            }}</strong>
                                                     </p>
                                                     <p class="text-sm">
                                                         Total Monto:
@@ -393,7 +393,7 @@ watch(
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-    return pedidoDestino.value.find((p: any) => p.tipo === 'I') || null
+    return pedidoDestino.value.find((p: any) => p.tipo === 'I' || p.tipo === 'P') || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -481,8 +481,8 @@ const totalPrecio = computed(() =>
 const pedidoPayload: any = computed(() => ({
     id_persona: userData.value?.id_persona ?? null,
     id_destino: selectedPersona.value?.id_persona ?? null,
-    tipo: 'I',
-    modalidad: 'V',
+    tipo: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'I' : 'P',
+    modalidad: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'V' : 'P',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({
