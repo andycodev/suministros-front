@@ -5,6 +5,17 @@
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
         <div class="col-span-1 space-y-5 p-6 bg-gray-50 border-r border-gray-100 md:border-gray-200">
           <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Filtros de Búsqueda</h2>
+          <!-- 
+          <div class="p-10">
+            <h1 class="mb-4">Formulario de Pedido</h1>
+
+            <pre>{{ formulario }}</pre>
+
+            <Autocomplete placeholder="Selecciona Iglesia" :items="iglesiaUnions || []" label="nombre"
+              @elegido="(val: any) => formulario.iglesia = val" />
+
+          </div> -->
+
 
           <fieldset class="form-control w-full">
             <label class="label">
@@ -412,6 +423,7 @@ import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
+// import Autocomplete from '@/components/shared/Autocomplete.vue';
 
 const { filters, setUnion, setCampo, setDistrito, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()
@@ -427,7 +439,12 @@ const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetch
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
-const route = useRoute()
+
+/* const formulario = ref({
+  iglesia: null,
+  material: null,
+  repartidor: null
+}); */
 
 const isDirectorAuthenticated = computed(() => {
   return localStorage.getItem('isDirectorAuth') === 'true';
