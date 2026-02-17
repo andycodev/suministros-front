@@ -1,6 +1,22 @@
 <template>
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+    <div class="flex justify-center my-8 -mt-12">
+      <fieldset class="form-control w-full max-w-sm">
+        <label class="label">
+          <span class="label-text text-sm font-medium text-gray-600">
+            Periodo
+          </span>
+        </label>
+
+        <select v-model="periodoSeleccionado" class="select select-bordered w-full">
+          <option disabled selected>Seleccione el Periodo</option>
+          <option v-for="periodo in periodos" :key="periodo.id_periodo" :value="periodo.id_periodo">
+            {{ periodo.id_periodo }} - {{ periodo.nombre }}
+          </option>
+        </select>
+      </fieldset>
+    </div>
     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-w-6xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
         <div class="col-span-1 space-y-5 p-6 bg-gray-50 border-r border-gray-100 md:border-gray-200">
@@ -175,7 +191,6 @@
                           o eliminarlo.
                         </span>
                       </div>
-
                       <!-- TÍTULO DEL PEDIDO -->
                       <h2 class="card-title text-2xl font-bold">
                         Pedido #{{ pedidoTipoPersonal.codigo }}
@@ -184,18 +199,24 @@
                       <p class="text-sm opacity-70">
                         Realizado el: {{ new Date(pedidoTipoPersonal.created_at).toLocaleString() }}
                       </p>
-
-
+                      <p class="text-sm opacity-70">
+                        Periodo: {{ pedidoTipoPersonal.id_periodo }}
+                      </p>
                       <!-- INFORMACIÓN -->
                       <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                         <div class="p-4 bg-base-200 rounded-xl">
-                          <h3 class="font-semibold mb-2">Información del Cliente</h3>
+                          <h3 class="font-semibold mb-2">Información del Solicitante</h3>
                           <p>{{ pedidoTipoPersonal.persona?.nombres }} {{ pedidoTipoPersonal.persona?.ap_paterno }} {{
                             pedidoTipoPersonal.persona?.ap_materno }}</p>
                           <p class="text-sm opacity-70">{{ pedidoTipoPersonal.persona?.email }}</p>
                           <p class="text-sm opacity-70">{{ pedidoTipoPersonal.persona?.telefono }}</p>
+                          <div class="divider"></div>
+                          <h3 class="font-semibold mb-2">Información del Destinatario</h3>
+                          <p>{{ pedidoTipoPersonal.destino?.nombres }} {{ pedidoTipoPersonal.destino?.ap_paterno }} {{
+                            pedidoTipoPersonal.destino?.ap_materno }}</p>
+                          <p class="text-sm opacity-70">{{ pedidoTipoPersonal.destino?.email }}</p>
+                          <p class="text-sm opacity-70">{{ pedidoTipoPersonal.destino?.telefono }}</p>
                         </div>
-
                         <div class="p-4 bg-base-200 rounded-xl">
                           <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                           <BadgeEstadoPedido :estado="pedidoTipoPersonal.estado" />
@@ -432,13 +453,26 @@ const { data: iglesiaDistritos } = useGetIglesiaDistritosByCampo()
 const { data: iglesiaIglesias } = useGetIglesiaIglesiasByDistrito()
 const { data: personas, refetch: refetchPersonas, isRefetching: isRefetchingPersonas } = useSearchPersona()
 
-const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesPersona, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useGetPeriodos, useShowPedidoByIdDestino, useGetMaterialesPersona, useCreatePedido } = usePedido()
+const { data: periodos, isLoading: isLoadingPeriodos, isPending: isPendingPeriodos, refetch: refetchPeriodos, isRefetching: isRefetchingPeriodos } = useGetPeriodos()
 const { data: materialesPersona, isLoading: isLoadingMaterialesPersona, isPending: isPendingMaterialesPersona, refetch: refetchMaterialesPersona, isRefetching: isRefetchingMaterialesPersona } = useGetMaterialesPersona()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isError: isErrorCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
 const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino, isRefetching: isRefetchingPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
+
+
+// 2. Creas la variable reactiva para el selector
+const periodoSeleccionado = ref(null);
+
+// 3. El "vigilante" que asigna el último ID automáticamente
+watch(periodos, (nuevosDatos) => {
+  if (nuevosDatos && nuevosDatos.length > 0) {
+    // .at(-1) toma el último elemento del array de forma simple
+    periodoSeleccionado.value = nuevosDatos.at(-1).id_periodo;
+  }
+}, { immediate: true });
 
 /* const formulario = ref({
   iglesia: null,
@@ -452,7 +486,7 @@ const isDirectorAuthenticated = computed(() => {
 
 const pedidoTipoPersonal = computed(() => {
   if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-  return pedidoDestino.value.find((p: any) => p.tipo === 'P') || null
+  return pedidoDestino.value.find((p: any) => p.tipo === 'P' && p.id_periodo === periodoSeleccionado.value) || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -472,12 +506,13 @@ const selectPersona = async (persona: any) => {
     pedidoDestino.value.some((p: any) =>
       p.tipo === 'P' &&
       p.modalidad === 'P' &&
+      p.id_periodo === periodoSeleccionado.value &&
       p.detalles &&
       Array.isArray(p.detalles) &&
       p.detalles.length > 0
     );
 
-  // Si NO tiene pedido → cargamos materiales
+  // Si NO tiene pedido para el periodo seleccionado → cargamos materiales
   if (!tienePedidoPrevio) {
     await refetchMaterialesPersona();
   }
@@ -539,6 +574,8 @@ const totalPrecio = computed(() =>
 const pedidoPayload: any = computed(() => ({
   id_persona: selectedPersona.value?.id_persona ?? null,
   id_destino: selectedPersona.value?.id_persona ?? null,
+  id_periodo: periodoSeleccionado.value,
+  id_iglesia: selectedPersona.value?.iglesia.id_iglesia ?? null,
   tipo: 'P',
   modalidad: 'P',
   detalles: materiales.value
@@ -605,6 +642,29 @@ const debouncedSearch = debounce(() => {
 }, 500);
 
 watch(() => filters.documento, debouncedSearch);
+
+// Watch for period changes to reload materials if needed
+watch(periodoSeleccionado, async (newPeriodo, oldPeriodo) => {
+  if (!selectedPersona.value || !newPeriodo || newPeriodo === oldPeriodo) return;
+
+  // Check if there's a pedido for the new period
+  const tienePedidoParaNuevoPeriodo =
+    pedidoDestino.value &&
+    Array.isArray(pedidoDestino.value) &&
+    pedidoDestino.value.some((p: any) =>
+      p.tipo === 'P' &&
+      p.modalidad === 'P' &&
+      p.id_periodo === newPeriodo &&
+      p.detalles &&
+      Array.isArray(p.detalles) &&
+      p.detalles.length > 0
+    );
+
+  // If no pedido for the new period, load materials
+  if (!tienePedidoParaNuevoPeriodo) {
+    await refetchMaterialesPersona();
+  }
+});
 
 // Limpiar estado al montar el componente para evitar materiales residuales
 onMounted(() => {

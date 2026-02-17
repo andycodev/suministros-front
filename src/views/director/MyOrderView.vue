@@ -90,12 +90,22 @@
                                         <!-- INFORMACIÓN -->
                                         <div class="mt-4 grid grid-cols-1 md:grid-cols-2 gap-4">
                                             <div class="p-4 bg-base-200 rounded-xl">
-                                                <h3 class="font-semibold mb-2">Información del Cliente</h3>
+                                                <h3 class="font-semibold mb-2">Información del Solicitante</h3>
                                                 <p>{{ pedidoTipoIglesia.persona?.nombres }} {{
                                                     pedidoTipoIglesia.persona?.ap_paterno }} {{
                                                         pedidoTipoIglesia.persona?.ap_materno }}</p>
-                                                <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email }}</p>
+                                                <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email }}
+                                                </p>
                                                 <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.telefono }}
+                                                </p>
+                                                <div class="divider"></div>
+                                                <h3 class="font-semibold mb-2">Información del Destinatario</h3>
+                                                <p>{{ pedidoTipoIglesia.destino?.nombres }} {{
+                                                    pedidoTipoIglesia.destino?.ap_paterno }} {{
+                                                        pedidoTipoIglesia.destino?.ap_materno }}</p>
+                                                <p class="text-sm opacity-70">{{ pedidoTipoIglesia.destino?.email }}
+                                                </p>
+                                                <p class="text-sm opacity-70">{{ pedidoTipoIglesia.destino?.telefono }}
                                                 </p>
                                             </div>
 

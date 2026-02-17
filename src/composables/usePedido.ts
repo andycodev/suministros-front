@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn } from '@/services/pedido.service';
+import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn } from '@/services/pedido.service';
 
 const usePedido = () => {
 
@@ -10,6 +10,19 @@ const usePedido = () => {
     const router = useRouter();
     const selectedPersona: any = ref(null);
     const materiales: any = ref([])
+
+
+    function useGetPeriodos() {
+        const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
+            queryKey: computed(() => ['periodos']),
+            queryFn: async () => {
+                const data = await getPeriodosFn()
+                return data
+            },
+            enabled: computed(() => true),
+        });
+        return { data, isLoading, isPending, refetch, isRefetching }
+    }
 
     function useGetMaterialesPersona() {
         const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
@@ -97,6 +110,7 @@ const usePedido = () => {
     return {
         selectedPersona,
         materiales,
+        useGetPeriodos,
         useGetMaterialesPersona,
         useGetMaterialesIglesia,
         useShowPedidoByIdPersona,

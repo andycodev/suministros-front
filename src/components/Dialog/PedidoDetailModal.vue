@@ -14,8 +14,15 @@
                 </div>
                 <div>
                     <p class="text-xs uppercase opacity-60">Destino</p>
-                    <p class="font-bold">{{ data?.destino?.nombres }} {{ data?.destino?.ap_paterno }}</p>
-                    <p class="text-sm">{{ data?.destino?.direccion }}</p>
+                    <span
+                        v-if="data?.tipo === 'I' && data?.modalidad === 'V' && data?.id_persona === data?.destino?.id_persona">
+                        <p class="font-bold">{{ data?.destino?.iglesia?.nombre }}</p>
+                        <p class="text-sm">Iglesia</p>
+                    </span>
+                    <span v-else>
+                        <p class="font-bold">{{ data?.destino?.nombres }} {{ data?.destino?.ap_paterno }}</p>
+                        <p class="text-sm">{{ data?.destino?.direccion }}</p>
+                    </span>
                 </div>
             </div>
 

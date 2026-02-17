@@ -39,7 +39,7 @@
                 <div class="modal-action">
                     <button class="btn btn-ghost" @click="showCardModal = false">Cancelar</button>
                     <button class="btn btn-primary" @click="processCardPayment">Pagar S/ {{ pedidoDetail?.total_monto
-                        }}</button>
+                    }}</button>
                 </div>
             </div>
         </div>
@@ -68,7 +68,6 @@
         <!-- CARD PRINCIPAL -->
         <div class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body space-y-6">
-
                 <!-- ALERTA -->
                 <div role="alert" class="alert alert-info alert-outline">
                     <span>
@@ -92,10 +91,17 @@
 
                     <!-- INFO DEL CLIENTE -->
                     <div class="md:col-span-1 p-4 bg-base-200 rounded-xl space-y-1">
-                        <h3 class="font-semibold">Cliente</h3>
-                        <p>{{ pedidoDetail?.persona.nombres }} {{ pedidoDetail?.persona.ap_paterno }}</p>
-                        <p class="text-sm opacity-70">{{ pedidoDetail?.persona.email }}</p>
-                        <p class="text-sm opacity-70">{{ pedidoDetail?.persona.telefono }}</p>
+                        <h3 class="font-semibold mb-2">Información del Solicitante</h3>
+                        <p>{{ pedidoDetail.persona?.nombres }} {{ pedidoDetail.persona?.ap_paterno }} {{
+                            pedidoDetail.persona?.ap_materno }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail.persona?.email }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail.persona?.telefono }}</p>
+                        <div class="divider"></div>
+                        <h3 class="font-semibold mb-2">Información del Destinatario</h3>
+                        <p>{{ pedidoDetail.destino?.nombres }} {{ pedidoDetail.destino?.ap_paterno }} {{
+                            pedidoDetail.destino?.ap_materno }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail.destino?.email }}</p>
+                        <p class="text-sm opacity-70">{{ pedidoDetail.destino?.telefono }}</p>
                     </div>
 
                     <!-- INFO DEL PEDIDO -->
