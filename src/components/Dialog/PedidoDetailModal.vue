@@ -15,7 +15,7 @@
                 <div>
                     <p class="text-xs uppercase opacity-60">Destino</p>
                     <span
-                        v-if="data?.tipo === 'I' && data?.modalidad === 'V' && data?.id_persona === data?.destino?.id_persona">
+                        v-if="data?.tipo === 'I' && data?.tipo_suscripcion === 'V' && data?.id_persona === data?.destino?.id_persona">
                         <p class="font-bold">{{ data?.destino?.iglesia?.nombre }}</p>
                         <p class="text-sm">Iglesia</p>
                     </span>

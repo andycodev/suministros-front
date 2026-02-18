@@ -39,7 +39,7 @@
                 <div class="modal-action">
                     <button class="btn btn-ghost" @click="showCardModal = false">Cancelar</button>
                     <button class="btn btn-primary" @click="processCardPayment">Pagar S/ {{ pedidoDetail?.total_monto
-                    }}</button>
+                        }}</button>
                 </div>
             </div>
         </div>
@@ -108,8 +108,8 @@
                     <div class="md:col-span-1 p-4 bg-base-200 rounded-xl space-y-1">
                         <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                         <BadgeEstadoPedido :estado="pedidoDetail.estado" />
-                        <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
-                        <BadgeModalidadPedido :modalidad="pedidoDetail.modalidad" />
+                        <h3 class="font-semibold mb-2">Tipo Suscripción</h3>
+                        <BadgeTiposuscripcionPedido :tipo_suscripcion="pedidoDetail.tipo_suscripcion" />
                         <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                         <BadgeTipoPedido :tipo="pedidoDetail.tipo" />
                         <p class="text-sm mt-2">
@@ -219,7 +219,7 @@ import { ref } from 'vue';
 import { useRouter } from 'vue-router';
 import usePay from '@/composables/usePay';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
-import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const router = useRouter();

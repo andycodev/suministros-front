@@ -1,7 +1,7 @@
 <template>
   <!-- Main Content -->
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-    <div class="flex justify-center my-8 -mt-12">
+    <!-- <div class="flex justify-center my-8 -mt-12">
       <fieldset class="form-control w-full max-w-sm">
         <label class="label">
           <span class="label-text text-sm font-medium text-gray-600">
@@ -16,7 +16,14 @@
           </option>
         </select>
       </fieldset>
-    </div>
+    </div> -->
+    <!--  <label>Selecciona tu periodo:</label>
+    <select v-model="idSeleccionado" class="select select-bordered w-full">
+      <option v-for="p in periodosStore" :key="p.id_periodo" :value="p.id_periodo">
+        {{ p.nombre }} {{ p.es_actual ? '(Actual)' : '' }}
+      </option>
+    </select>
+    <pre>{{ store }}</pre> -->
     <div class="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-100 max-w-6xl mx-auto">
       <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
         <div class="col-span-1 space-y-5 p-6 bg-gray-50 border-r border-gray-100 md:border-gray-200">
@@ -31,6 +38,8 @@
               @elegido="(val: any) => formulario.iglesia = val" />
 
           </div> -->
+          <span class="label-text text-sm font-medium text-gray-600">Periodo: </span>
+          <span>{{ isLoadingPeriodos ? 'Cargando...' : store.periodoPredeterminado?.nombre }}</span>
 
 
           <fieldset class="form-control w-full">
@@ -220,8 +229,8 @@
                         <div class="p-4 bg-base-200 rounded-xl">
                           <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                           <BadgeEstadoPedido :estado="pedidoTipoPersonal.estado" />
-                          <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
-                          <BadgeModalidadPedido :modalidad="pedidoTipoPersonal.modalidad" />
+                          <h3 class="font-semibold mb-2">Tipo Suscripción</h3>
+                          <BadgeTiposuscripcionPedido :tipo_suscripcion="pedidoTipoPersonal.tipo_suscripcion" />
                           <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                           <BadgeTipoPedido :tipo="pedidoTipoPersonal.tipo" />
 
@@ -438,13 +447,17 @@
 
 <script setup lang="ts">
 import { ref, watchEffect, computed, watch, onMounted } from 'vue';
-import { useRoute } from 'vue-router'
+import { usePeriodoStore } from '@/stores/periodoStore'
+import { storeToRefs } from 'pinia'
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
-import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 // import Autocomplete from '@/components/shared/Autocomplete.vue';
+
+const store = usePeriodoStore()
+const { idPeriodoSeleccionado } = storeToRefs(store)
 
 const { filters, setUnion, setCampo, setDistrito, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()
@@ -464,15 +477,6 @@ const messageSuccces = ref(false)
 
 
 // 2. Creas la variable reactiva para el selector
-const periodoSeleccionado = ref(null);
-
-// 3. El "vigilante" que asigna el último ID automáticamente
-watch(periodos, (nuevosDatos) => {
-  if (nuevosDatos && nuevosDatos.length > 0) {
-    // .at(-1) toma el último elemento del array de forma simple
-    periodoSeleccionado.value = nuevosDatos.at(-1).id_periodo;
-  }
-}, { immediate: true });
 
 /* const formulario = ref({
   iglesia: null,
@@ -486,7 +490,7 @@ const isDirectorAuthenticated = computed(() => {
 
 const pedidoTipoPersonal = computed(() => {
   if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-  return pedidoDestino.value.find((p: any) => p.tipo === 'P' && p.id_periodo === periodoSeleccionado.value) || null
+  return pedidoDestino.value.find((p: any) => p.tipo === 'P' && p.id_periodo === idPeriodoSeleccionado.value) || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -505,8 +509,8 @@ const selectPersona = async (persona: any) => {
     Array.isArray(pedidoDestino.value) &&
     pedidoDestino.value.some((p: any) =>
       p.tipo === 'P' &&
-      p.modalidad === 'P' &&
-      p.id_periodo === periodoSeleccionado.value &&
+      p.tipo_suscripcion === 'V' &&
+      p.id_periodo === idPeriodoSeleccionado.value &&
       p.detalles &&
       Array.isArray(p.detalles) &&
       p.detalles.length > 0
@@ -574,10 +578,10 @@ const totalPrecio = computed(() =>
 const pedidoPayload: any = computed(() => ({
   id_persona: selectedPersona.value?.id_persona ?? null,
   id_destino: selectedPersona.value?.id_persona ?? null,
-  id_periodo: periodoSeleccionado.value,
+  id_periodo: store.periodoPredeterminado.id_periodo,
   id_iglesia: selectedPersona.value?.iglesia.id_iglesia ?? null,
   tipo: 'P',
-  modalidad: 'P',
+  tipo_suscripcion: 'V',
   detalles: materiales.value
     .filter((item: any) => item.cantidad > 0)
     .map((item: any) => ({
@@ -642,29 +646,6 @@ const debouncedSearch = debounce(() => {
 }, 500);
 
 watch(() => filters.documento, debouncedSearch);
-
-// Watch for period changes to reload materials if needed
-watch(periodoSeleccionado, async (newPeriodo, oldPeriodo) => {
-  if (!selectedPersona.value || !newPeriodo || newPeriodo === oldPeriodo) return;
-
-  // Check if there's a pedido for the new period
-  const tienePedidoParaNuevoPeriodo =
-    pedidoDestino.value &&
-    Array.isArray(pedidoDestino.value) &&
-    pedidoDestino.value.some((p: any) =>
-      p.tipo === 'P' &&
-      p.modalidad === 'P' &&
-      p.id_periodo === newPeriodo &&
-      p.detalles &&
-      Array.isArray(p.detalles) &&
-      p.detalles.length > 0
-    );
-
-  // If no pedido for the new period, load materials
-  if (!tienePedidoParaNuevoPeriodo) {
-    await refetchMaterialesPersona();
-  }
-});
 
 // Limpiar estado al montar el componente para evitar materiales residuales
 onMounted(() => {

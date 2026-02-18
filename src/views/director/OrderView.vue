@@ -54,7 +54,7 @@
                             <!-- Pedido para: -->
                             <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{
                                 selectedPersona?.ap_materno
-                            }}</strong>
+                                }}</strong>
                         </div>
                         <div class="divider divider-neutral">Resumen del pedido</div>
                         <p class="text-sm text-gray-600">
@@ -160,7 +160,7 @@
                                                         pedidoTipoIglesia.persona?.ap_paterno }} {{
                                                             pedidoTipoIglesia.persona?.ap_materno }}</p>
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email
-                                                    }}</p>
+                                                        }}</p>
                                                     <p class="text-sm opacity-70">{{
                                                         pedidoTipoIglesia.persona?.telefono }}</p>
                                                     <div class="divider"></div>
@@ -169,7 +169,7 @@
                                                         pedidoTipoIglesia.destino?.ap_paterno }} {{
                                                             pedidoTipoIglesia.destino?.ap_materno }}</p>
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.destino?.email
-                                                    }}</p>
+                                                        }}</p>
                                                     <p class="text-sm opacity-70">{{
                                                         pedidoTipoIglesia.destino?.telefono }}</p>
                                                 </div>
@@ -177,13 +177,14 @@
                                                 <div class="p-4 bg-base-200 rounded-xl">
                                                     <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                                                     <BadgeEstadoPedido :estado="pedidoTipoIglesia.estado" />
-                                                    <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
-                                                    <BadgeModalidadPedido :modalidad="pedidoTipoIglesia.modalidad" />
+                                                    <h3 class="font-semibold mb-2">Tipo Suscripción</h3>
+                                                    <BadgeTiposuscripcionPedido
+                                                        :tipo_suscripcion="pedidoTipoIglesia.tipo_suscripcion" />
                                                     <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                     <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                     <p class="mt-2 text-sm">
                                                         Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad
-                                                            }}</strong>
+                                                        }}</strong>
                                                     </p>
                                                     <p class="text-sm">
                                                         Total Monto:
@@ -360,7 +361,7 @@ import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
-import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona, useGetPersonaById, userData } = usePersona()
@@ -420,7 +421,7 @@ const selectPersona = async (persona: any) => {
         Array.isArray(pedidoDestino.value) &&
         pedidoDestino.value.some((p: any) =>
             p.tipo === 'I' &&
-            p.modalidad === 'V' &&
+            p.tipo_suscripcion === 'V' &&
             p.detalles &&
             Array.isArray(p.detalles) &&
             p.detalles.length > 0
@@ -490,7 +491,7 @@ const pedidoPayload: any = computed(() => ({
     id_persona: userData.value?.id_persona ?? null,
     id_destino: selectedPersona.value?.id_persona ?? null,
     tipo: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'I' : 'P',
-    modalidad: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'V' : 'P',
+    tipo_suscripcion: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'V' : 'P',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({

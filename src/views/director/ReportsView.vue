@@ -21,19 +21,19 @@
                         </select>
                     </div>
 
-                    <!-- Modalidad -->
+                    <!-- Tiposuscripcion -->
                     <div class="form-control">
                         <label class="label">
-                            <span class="label-text font-medium">Modalidad</span>
+                            <span class="label-text font-medium">Tiposuscripcion</span>
                         </label>
-                        <select v-model="filters.modalidad" class="select select-bordered select-sm w-full"
+                        <select v-model="filters.tipo_suscripcion" class="select select-bordered select-sm w-full"
                             @change="() => refetchMisPedidos()">
                             <option value="">Todos</option>
-                            <!--  <option disabled :value="null" :selected="filters.modalidad == null">Seleccione el
-                                modalidad</option> -->
-                            <option v-for="modalidadPedido in modalidadPedidos" :key="modalidadPedido.id"
-                                :value="modalidadPedido.value">
-                                {{ modalidadPedido.nombre }}
+                            <!--  <option disabled :value="null" :selected="filters.tipo_suscripcion == null">Seleccione el
+                                tipo_suscripcion</option> -->
+                            <option v-for="tiposuscripcionPedido in tiposuscripcionPedidos"
+                                :key="tiposuscripcionPedido.id" :value="tiposuscripcionPedido.value">
+                                {{ tiposuscripcionPedido.nombre }}
                             </option>
                         </select>
                     </div>
@@ -89,7 +89,7 @@
                                 <th class="text-left">Destinatario</th>
                                 <th class="text-center">Total</th>
                                 <th class="text-center">Tipo</th>
-                                <th class="text-center">Modalidad</th>
+                                <th class="text-center">Tiposuscripcion</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
@@ -116,7 +116,7 @@
                                 </td>
                                 <td>
                                     <span
-                                        v-if="pedido.tipo === 'I' && pedido.modalidad === 'V' && pedido.id_persona === pedido.destino?.id_persona">
+                                        v-if="pedido.tipo === 'I' && pedido.tipo_suscripcion === 'V' && pedido.id_persona === pedido.destino?.id_persona">
                                         {{ pedido.destino?.iglesia?.nombre }}
                                     </span>
                                     <span v-else>
@@ -130,7 +130,7 @@
                                     <BadgeTipoPedido :tipo="pedido.tipo" />
                                 </td>
                                 <td class="text-center">
-                                    <BadgeModalidadPedido :modalidad="pedido.modalidad" />
+                                    <BadgeTiposuscripcionPedido :tipo_suscripcion="pedido.tipo_suscripcion" />
                                 </td>
                                 <td class="text-center">
                                     <BadgeEstadoPedido :estado="pedido.estado" />
@@ -155,11 +155,11 @@
 import { ref, watch } from 'vue';
 import useReport from '@/composables/useReport';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
-import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 import PedidoDetailModal from '@/components/Dialog/PedidoDetailModal.vue';
 
-const { filters, useGetMisPedidos, tipoPedidos, modalidadPedidos, estadoPedidos } = useReport();
+const { filters, useGetMisPedidos, tipoPedidos, tiposuscripcionPedidos, estadoPedidos } = useReport();
 
 const { data: misPedidos, isPending: isPendingMisPedidos, refetch: refetchMisPedidos, isRefetching: isRefetchingMisPedidos } = useGetMisPedidos();
 

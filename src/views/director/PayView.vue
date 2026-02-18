@@ -39,7 +39,7 @@
                 <div class="modal-action">
                     <button class="btn btn-ghost" @click="showCardModal = false">Cancelar</button>
                     <button class="btn btn-primary" @click="processCardPayment">Pagar S/ {{ pedidoDetail?.total_monto
-                        }}</button>
+                    }}</button>
                 </div>
             </div>
         </div>
@@ -110,11 +110,11 @@
                                 pedidoDetail?.tipo == 'P' ? 'PERSONAL' :
                                     'IGLESIA' }}
                         </div>
-                        <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
+                        <h3 class="font-semibold mb-2">Tipo Suscripción</h3>
                         <div class="badge badge-soft"
-                            :class="pedidoDetail?.modalidad == 'P' ? 'badge-accent' : 'badge-secondary'">
+                            :class="pedidoDetail?.tipo_suscripcion == 'P' ? 'badge-accent' : 'badge-secondary'">
                             {{
-                                pedidoDetail?.modalidad == 'P' ? 'PRESENCIAL' :
+                                pedidoDetail?.tipo_suscripcion == 'F' ? 'FISICO' :
                                     'VIRTUAL' }}
                         </div>
                         <p class="text-sm mt-2">
@@ -171,7 +171,7 @@
 
                             <tbody>
                                 <tr v-for="(d, i) in pedidoDetail?.detalles" :key="d.id_detalle">
-                                    <td>{{ i + 1 }}</td>
+                                    <td>{{ Number(i) + 1 }}</td>
                                     <td>
                                         <div class="font-semibold">{{ d.material.nombre }}</div>
                                         <div class="text-xs opacity-70">{{ d.material.descripcion }}</div>

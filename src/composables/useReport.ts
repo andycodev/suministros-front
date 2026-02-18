@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { useQuery, /* useQueryClient */ } from '@tanstack/vue-query';
 import { getMisPedidosFn } from '@/services/report.service';
-import { getTipoPedidosFn, getModalidadPedidosFn, getEstadoPedidosFn } from '@/services/setup.service';
+import { getTipoPedidosFn, getTiposuscripcionPedidosFn, getEstadoPedidosFn } from '@/services/setup.service';
 import usePersona from '@/composables/usePersona';
 
 
@@ -13,13 +13,13 @@ const useReport = () => {
     const filters: any = ref({
         id_persona: userData.value?.id_persona ?? null,
         tipo: '',
-        modalidad: '',
+        tipo_suscripcion: '',
         estado: '',
         codigo: null,
     })
 
     const tipoPedidos = getTipoPedidosFn();
-    const modalidadPedidos = getModalidadPedidosFn();
+    const tiposuscripcionPedidos = getTiposuscripcionPedidosFn();
     const estadoPedidos = getEstadoPedidosFn();
 
     function useGetMisPedidos() {
@@ -38,7 +38,7 @@ const useReport = () => {
         filters,
         useGetMisPedidos,
         tipoPedidos,
-        modalidadPedidos,
+        tiposuscripcionPedidos,
         estadoPedidos,
     }
 }

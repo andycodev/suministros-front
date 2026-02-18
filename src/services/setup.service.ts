@@ -27,7 +27,7 @@ export const getTipoPedidosFn = () => [
     { id: 2, value: 'I', nombre: 'Iglesia' },
 ]
 
-export const getModalidadPedidosFn = () => [
+export const getTiposuscripcionPedidosFn = () => [
     { id: 1, value: 'P', nombre: 'Presencial' },
     { id: 2, value: 'V', nombre: 'Virtual' },
 ]

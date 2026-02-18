@@ -13,6 +13,29 @@
                             <strong>{{ userData.nombres }} {{ userData.ap_paterno }} {{ userData.ap_materno }}</strong>
                         </p>
                         <p class="text-xs text-blue-500 mt-1">Creando pedido para su cuenta</p>
+
+                        <pre>{{ userData }}</pre>
+                    </div>
+                    <!--  <div class="flex justify-center my-8 -mt-12">
+                        <fieldset class="form-control w-full max-w-sm">
+                            <label class="label">
+                                <span class="label-text text-sm font-medium text-gray-600">
+                                    Periodo
+                                </span>
+                            </label>
+
+                            <select v-model="periodoSeleccionado" class="select select-bordered w-full">
+                                <option disabled selected>Seleccione el Periodo</option>
+                                <option v-for="periodo in periodos" :key="periodo.id_periodo"
+                                    :value="periodo.id_periodo">
+                                    {{ periodo.id_periodo }} - {{ periodo.nombre }}
+                                </option>
+                            </select>
+                        </fieldset>
+                    </div> -->
+
+                    <div v-if="idPeriodoSeleccionado">
+                        <p>Periodo seleccionado: {{ idPeriodoSeleccionado }}</p>
                     </div>
 
                     <!-- Totalizador -->
@@ -112,8 +135,9 @@
                                             <div class="p-4 bg-base-200 rounded-xl">
                                                 <h3 class="font-semibold mb-2">Estado del Pedido</h3>
                                                 <BadgeEstadoPedido :estado="pedidoTipoIglesia.estado" />
-                                                <h3 class="font-semibold mb-2">Modalidad de Pedido</h3>
-                                                <BadgeModalidadPedido :modalidad="pedidoTipoIglesia.modalidad" />
+                                                <h3 class="font-semibold mb-2">Tipo Suscripción</h3>
+                                                <BadgeTiposuscripcionPedido
+                                                    :tipo_suscripcion="pedidoTipoIglesia.tipo_suscripcion" />
                                                 <h3 class="font-semibold mb-2">Tipo de Pedido</h3>
                                                 <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                 <p class="mt-2 text-sm">
@@ -235,8 +259,13 @@ import { ref, watchEffect, computed, watch } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
-import BadgeModalidadPedido from '@/components/shared/BadgeModalidadPedido.vue';
+import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
+import { usePeriodoStore } from '@/stores/periodoStore'
+import { storeToRefs } from 'pinia'
+
+const store = usePeriodoStore()
+const { idPeriodoSeleccionado } = storeToRefs(store)
 
 const { userData } = usePersona()
 const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido } = usePedido()
@@ -250,7 +279,7 @@ const messageSuccces = ref(false)
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-    return pedidoDestino.value.find((p: any) => p.tipo === 'I') || null
+    return pedidoDestino.value.find((p: any) => p.tipo === 'I' && p.id_periodo === idPeriodoSeleccionado.value) || null
 })
 
 const selectPersona = async () => {
@@ -271,7 +300,7 @@ const selectPersona = async () => {
         Array.isArray(pedidoDestino.value) &&
         pedidoDestino.value.some((p: any) =>
             p.tipo === 'I' &&
-            p.modalidad === 'V' &&
+            p.tipo_suscripcion === 'F' &&
             p.detalles &&
             Array.isArray(p.detalles) &&
             p.detalles.length > 0
@@ -335,8 +364,10 @@ const totalPrecio = computed(() =>
 const pedidoPayload: any = computed(() => ({
     id_persona: userData.value?.id_persona ?? null,
     id_destino: userData.value?.id_persona ?? null,
+    id_periodo: idPeriodoSeleccionado.value,
+    id_iglesia: userData.value?.id_iglesia ?? null,
     tipo: 'I',
-    modalidad: 'V',
+    tipo_suscripcion: 'F',
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({

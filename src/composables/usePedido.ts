@@ -1,4 +1,5 @@
-import { ref, computed } from 'vue';
+import { usePeriodoStore } from '@/stores/periodoStore'
+import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
 import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn } from '@/services/pedido.service';
@@ -12,16 +13,39 @@ const usePedido = () => {
     const materiales: any = ref([])
 
 
+    /*   function useGetPeriodos() {
+          const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
+              queryKey: computed(() => ['periodos']),
+              queryFn: async () => {
+                  const data = await getPeriodosFn()
+                  return data
+              },
+              enabled: computed(() => true),
+          });
+          return { data, isLoading, isPending, refetch, isRefetching }
+      } */
+
     function useGetPeriodos() {
-        const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
-            queryKey: computed(() => ['periodos']),
+        const periodoStore = usePeriodoStore() // Instanciamos el store
+
+        const query = useQuery({
+            queryKey: ['periodos'], // No necesitas computed si el key es estático
             queryFn: async () => {
                 const data = await getPeriodosFn()
                 return data
             },
-            enabled: computed(() => true),
+            // Sincronizamos con Pinia cuando la data cambie
+            placeholderData: (prev) => prev,
         });
-        return { data, isLoading, isPending, refetch, isRefetching }
+
+        // Observamos cuando la data llega del back para llenar el store
+        watch(query.data, (nuevosPeriodos) => {
+            if (nuevosPeriodos) {
+                periodoStore.setPeriodos(nuevosPeriodos)
+            }
+        }, { immediate: true })
+
+        return query
     }
 
     function useGetMaterialesPersona() {

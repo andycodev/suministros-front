@@ -17,8 +17,15 @@
                         <p class="text-sm text-gray-500">Publicaciones</p>
                     </div>
                 </div>
-
+                <div v-if="!isLoading">
+                    <select v-model="idPeriodoSeleccionado" class="select select-bordered w-full">
+                        <option v-for="p in periodosStore" :key="p.id_periodo" :value="p.id_periodo">
+                            {{ p.nombre }} {{ p.es_actual ? '(Actual)' : '' }}
+                        </option>
+                    </select>
+                </div>
                 <!-- Church Name Header -->
+
                 <div class="mb-6 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg shadow-md">
                     <div class="text-center">
                         <p class="text-xs text-primary-content/80 font-medium uppercase tracking-wider mb-1">Iglesia</p>
@@ -108,7 +115,9 @@
                 <div class="navbar">
                     <div class="flex-1">
                         <!-- <h1 class="text-xl font-bold">Panel de Control - Director de Publicaciones</h1> -->
+
                     </div>
+
                     <div class="flex items-center gap-3 flex-none">
                         <!-- User info always visible -->
                         <div class="hidden sm:flex flex-col text-right leading-tight">
@@ -154,6 +163,15 @@ import { useRouter, useRoute } from 'vue-router';
 import { HomeIcon, UserIcon } from '@heroicons/vue/24/outline'
 import useAuth from '@/composables/useAuth';
 import usePersona from '@/composables/usePersona';
+import usePedido from '@/composables/usePedido';
+import { usePeriodoStore } from '@/stores/periodoStore'
+import { storeToRefs } from 'pinia'
+
+const store = usePeriodoStore()
+const { idPeriodoSeleccionado, periodosStore } = storeToRefs(store)
+
+const { useGetPeriodos } = usePedido()
+const { isLoading } = useGetPeriodos()
 
 const { useLogout } = useAuth();
 const { userData } = usePersona();
