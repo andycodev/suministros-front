@@ -5,6 +5,9 @@
             <div class="grid grid-cols-1 md:grid-cols-3 gap-12 p-6">
                 <div v-if="personaData" class="col-span-1 space-y-5 p-6 border-r border-gray-100 md:border-gray-200">
                     <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Filtros de Búsqueda</h2>
+                    <div v-if="idPeriodoSeleccionado">
+                        <p>Periodo seleccionado: {{ idPeriodoSeleccionado }}</p>
+                    </div>
                     <fieldset class="form-control w-full">
                         <label class="label">
                             <span class="label-text text-sm font-medium text-gray-600">Unión</span>
@@ -54,7 +57,7 @@
                             <!-- Pedido para: -->
                             <strong>{{ selectedPersona?.nombres }} {{ selectedPersona?.ap_paterno }} {{
                                 selectedPersona?.ap_materno
-                                }}</strong>
+                            }}</strong>
                         </div>
                         <div class="divider divider-neutral">Resumen del pedido</div>
                         <p class="text-sm text-gray-600">
@@ -64,6 +67,21 @@
                         <p class="text-sm text-gray-600">
                             <strong>Monto total:</strong> S/. {{ totalPrecio.toFixed(2) }}
                         </p>
+
+                        <div class="flex justify-center my-8 -mt-12">
+                            <fieldset class="form-control w-full max-w-sm">
+                                <label class="label">
+                                    <span class="label-text text-sm font-medium text-gray-600">
+                                        Seleccione el tipo de suscripción
+                                    </span>
+                                </label>
+
+                                <select v-model="tipoSuscripcion" class="select select-bordered w-full">
+                                    <option value="F">Físico</option>
+                                    <option value="V">Virtual</option>
+                                </select>
+                            </fieldset>
+                        </div>
 
                         <div class="mt-3">
                             <button class="btn btn-sm btn-primary w-full" @click="enviarPedido()">
@@ -160,7 +178,7 @@
                                                         pedidoTipoIglesia.persona?.ap_paterno }} {{
                                                             pedidoTipoIglesia.persona?.ap_materno }}</p>
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.persona?.email
-                                                        }}</p>
+                                                    }}</p>
                                                     <p class="text-sm opacity-70">{{
                                                         pedidoTipoIglesia.persona?.telefono }}</p>
                                                     <div class="divider"></div>
@@ -169,7 +187,7 @@
                                                         pedidoTipoIglesia.destino?.ap_paterno }} {{
                                                             pedidoTipoIglesia.destino?.ap_materno }}</p>
                                                     <p class="text-sm opacity-70">{{ pedidoTipoIglesia.destino?.email
-                                                        }}</p>
+                                                    }}</p>
                                                     <p class="text-sm opacity-70">{{
                                                         pedidoTipoIglesia.destino?.telefono }}</p>
                                                 </div>
@@ -184,7 +202,7 @@
                                                     <BadgeTipoPedido :tipo="pedidoTipoIglesia.tipo" />
                                                     <p class="mt-2 text-sm">
                                                         Total Ítems: <strong>{{ pedidoTipoIglesia.total_cantidad
-                                                        }}</strong>
+                                                            }}</strong>
                                                     </p>
                                                     <p class="text-sm">
                                                         Total Monto:
@@ -363,6 +381,13 @@ import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcionPedido.vue';
 import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
+import { usePeriodoStore } from '@/stores/periodoStore'
+import { storeToRefs } from 'pinia'
+
+const store = usePeriodoStore()
+const { idPeriodoSeleccionado } = storeToRefs(store)
+
+const tipoSuscripcion = ref('F');
 
 const { filters, useGetIglesiaUnions, useGetIglesiaCamposByUnion, useGetIglesiaDistritosByCampo, useGetIglesiaIglesiasByDistrito, useSearchPersona, useGetPersonaById, userData } = usePersona()
 const { data: iglesiaUnions } = useGetIglesiaUnions()
@@ -402,7 +427,7 @@ watch(
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
-    return pedidoDestino.value.find((p: any) => p.tipo === 'I' || p.tipo === 'P') || null
+    return pedidoDestino.value.find((p: any) => p.tipo === 'P' && p.id_periodo === idPeriodoSeleccionado.value) || null
 })
 
 const selectPersona = async (persona: any) => {
@@ -490,8 +515,12 @@ const totalPrecio = computed(() =>
 const pedidoPayload: any = computed(() => ({
     id_persona: userData.value?.id_persona ?? null,
     id_destino: selectedPersona.value?.id_persona ?? null,
-    tipo: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'I' : 'P',
-    tipo_suscripcion: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'V' : 'P',
+    //  tipo: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'I' : 'P',
+    tipo: 'P',
+    id_periodo: idPeriodoSeleccionado.value,
+    id_iglesia: userData.value?.id_iglesia ?? null,
+    //tipo_suscripcion: selectedPersona.value?.id_persona === userData.value?.id_persona ? 'V' : 'P', //Corregir que venga de un select
+    tipo_suscripcion: tipoSuscripcion.value,
     detalles: materiales.value
         .filter((item: any) => item.cantidad > 0)
         .map((item: any) => ({
@@ -551,5 +580,12 @@ const searPerson = async () => {
     searchQuery.value = '';
     await refetchPersonas();
 };
+
+/* watch(pedidoTipoIglesia, (nuevoPedido) => {
+    if (nuevoPedido === null && userData.value?.id_persona) {
+        // No pedido exists for this period, reload materials
+        refetchMaterialesIglesia();
+    }
+}); */
 
 </script>

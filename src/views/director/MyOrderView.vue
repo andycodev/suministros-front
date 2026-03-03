@@ -14,7 +14,7 @@
                         </p>
                         <p class="text-xs text-blue-500 mt-1">Creando pedido para su cuenta</p>
 
-                        <pre>{{ userData }}</pre>
+                        <!-- <pre>{{ userData }}</pre> -->
                     </div>
                     <!--  <div class="flex justify-center my-8 -mt-12">
                         <fieldset class="form-control w-full max-w-sm">
@@ -73,7 +73,6 @@
                     <div class="flex justify-between items-center mb-4">
                         <h2 class="text-2xl font-bold text-gray-800">Materiales Disponibles</h2>
                     </div>
-
                     <div class="alert bg-gray-50 border border-gray-200 text-gray-600">
                         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24"
                             class="stroke-current flex-shrink-0 w-6 h-6">
@@ -404,6 +403,13 @@ watch(isSuccessCreatePedido, (isSuccess) => {
         setTimeout(() => {
             messageSuccces.value = false;
         }, 3000);
+    }
+});
+
+watch(pedidoTipoIglesia, (nuevoPedido) => {
+    if (nuevoPedido === null && userData.value?.id_persona) {
+        // No pedido exists for this period, reload materials
+        refetchMaterialesIglesia();
     }
 });
 

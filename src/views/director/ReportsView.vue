@@ -75,7 +75,6 @@
                 </div>
             </div>
         </div>
-
         <!-- Tabla -->
         <div class="card bg-base-100 shadow-sm">
             <div class="card-body p-0">
@@ -87,9 +86,10 @@
                                 <th class="text-center">Código</th>
                                 <th class="text-left">Solicitante</th>
                                 <th class="text-left">Destinatario</th>
+                                <th class="text-left">Periodo</th>
                                 <th class="text-center">Total</th>
                                 <th class="text-center">Tipo</th>
-                                <th class="text-center">Tiposuscripcion</th>
+                                <th class="text-center">Tipo suscripción</th>
                                 <th class="text-center">Estado</th>
                                 <th class="text-center">Acciones</th>
                             </tr>
@@ -116,12 +116,15 @@
                                 </td>
                                 <td>
                                     <span
-                                        v-if="pedido.tipo === 'I' && pedido.tipo_suscripcion === 'V' && pedido.id_persona === pedido.destino?.id_persona">
+                                        v-if="pedido.tipo === 'I' && pedido.tipo_suscripcion === 'F' && pedido.id_persona === pedido.destino?.id_persona">
                                         {{ pedido.destino?.iglesia?.nombre }}
                                     </span>
                                     <span v-else>
                                         {{ pedido.destino?.nombres }} {{ pedido.destino?.ap_paterno }}
                                     </span>
+                                </td>
+                                <td class="text-center">
+                                    {{ pedido.id_periodo }}
                                 </td>
                                 <td class="text-center font-semibold">
                                     ${{ pedido.total_monto }}
