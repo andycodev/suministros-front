@@ -37,6 +37,11 @@ export const createPedidoFn = async (payload: any) => {
     return data;
 }
 
+export const createPedidoFn2 = async (data: any) => {
+    const { data: response } = await baseApi.post(`${endPointUrl}/pedidos`, data);
+    return response;
+}
+
 export const updatePedidoFn = async (id_pedido: number, payload: any) => {
     const { data } = await baseApi.put(`${endPointUrl}/pedidos/${id_pedido}`, payload);
     return data;

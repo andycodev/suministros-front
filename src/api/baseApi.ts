@@ -11,7 +11,7 @@ export interface ApiResponse<T = any> {
 
 const baseApi: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_API_URL as string,
-    timeout: 10000,
+    timeout: 30000, // 30 seconds para evitar timeout, por defecto es 10000
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -61,7 +61,13 @@ baseApi.interceptors.response.use(
 
         return response;
     },
-    (error) => Promise.reject(error)
+    // (error) => Promise.reject(error) // Comentado para evitar error de timeout, descomentar si se desea que el timeout sea manejado por axios
+    (error) => {
+        if (error.code === 'ECONNABORTED') {
+            console.error('ERROR: La base de datos (Neon) tardó demasiado en despertar.');
+        }
+        return Promise.reject(error);
+    }
 );
 
 export default baseApi;

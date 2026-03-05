@@ -156,9 +156,90 @@
                                                 class="btn btn-primary flex-1">
                                                 Ver detalle y continuar con el pago
                                             </router-link>
-                                            <button class="btn btn-error btn-outline flex-1">
+                                            <button v-if="!editMode" @click="enableEditMode()"
+                                                class="btn btn-warning btn-outline flex-1">
+                                                Editar Pedido
+                                            </button>
+                                            <button v-if="editMode" @click="saveEditedPedido()"
+                                                class="btn btn-success flex-1" :disabled="isPendingUpdatePedido">
+                                                {{ isPendingUpdatePedido ? 'Guardando...' : 'Guardar Cambios' }}
+                                            </button>
+                                            <button v-if="editMode" @click="cancelEditMode()"
+                                                class="btn btn-secondary btn-outline flex-1">
+                                                Cancelar
+                                            </button>
+                                            <button v-if="!editMode" class="btn btn-error btn-outline flex-1">
                                                 Eliminar Pedido
                                             </button>
+                                        </div>
+
+                                        <!-- MATERIALES DEL PEDIDO EN MODO EDICIÓN -->
+                                        <div v-if="editMode" class="mt-6">
+                                            <div class="divider divider-neutral">Editar Materiales del Pedido</div>
+                                            <div class="space-y-3 max-h-[60vh] overflow-y-auto pr-2 -mr-2">
+                                                <div v-for="item in materiales" :key="item.id_material"
+                                                    class="card transition-all duration-200 border" :class="{
+                                                        'bg-green-50 border-green-200': item.cantidad > 0,
+                                                        'bg-base-100 border-base-200': item.cantidad === 0
+                                                    }">
+                                                    <div
+                                                        class="card-body p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                                        <!-- Info -->
+                                                        <div class="flex-1">
+                                                            <div class="flex items-start justify-between">
+                                                                <h2 class="font-semibold text-lg">{{ item.nombre }}</h2>
+                                                                <span class="text-sm font-medium text-green-600"
+                                                                    v-if="item.cantidad > 0">
+                                                                    {{ item.cantidad }} x S/. {{ item.precio }}
+                                                                </span>
+                                                            </div>
+                                                            <p class="text-sm text-gray-600 mt-1">{{ item.descripcion }}
+                                                            </p>
+                                                            <p class="font-bold text-primary mt-1">S/. {{ (item.precio *
+                                                                item.cantidad).toFixed(2) }}</p>
+                                                        </div>
+
+                                                        <!-- Controls -->
+                                                        <div class="flex items-center gap-2">
+                                                            <button
+                                                                class="btn btn-sm btn-ghost border border-gray-300 hover:bg-gray-100"
+                                                                @click="decrementar(item)"
+                                                                :disabled="item.cantidad === 0">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                                                                    fill="none" viewBox="0 0 24 24"
+                                                                    stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M20 12H4" />
+                                                                </svg>
+                                                            </button>
+
+                                                            <input type="number"
+                                                                class="input input-sm input-bordered w-16 text-center"
+                                                                v-model.number="item.cantidad" min="0"
+                                                                @input="handleQuantityInput($event, item)" />
+
+                                                            <button class="btn btn-sm btn-primary"
+                                                                @click="incrementar(item)">
+                                                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4"
+                                                                    fill="none" viewBox="0 0 24 24"
+                                                                    stroke="currentColor">
+                                                                    <path stroke-linecap="round" stroke-linejoin="round"
+                                                                        stroke-width="2" d="M12 4v16m8-8H4" />
+                                                                </svg>
+                                                            </button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                            <!-- Resumen en modo edición -->
+                                            <div class="mt-4 p-4 bg-gray-50 border border-gray-300 rounded-lg">
+                                                <p class="text-sm text-gray-600">
+                                                    <strong>Total de materiales:</strong> {{ totalItems }}
+                                                </p>
+                                                <p class="text-sm text-gray-600">
+                                                    <strong>Monto total:</strong> S/. {{ totalPrecio.toFixed(2) }}
+                                                </p>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
@@ -267,14 +348,15 @@ const store = usePeriodoStore()
 const { idPeriodoSeleccionado } = storeToRefs(store)
 
 const { userData } = usePersona()
-const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido, useUpdatePedido } = usePedido()
 const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, refetch: refetchMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
+const { mutate: updatePedido, isPending: isPendingUpdatePedido, isSuccess: isSuccessUpdatePedido } = useUpdatePedido()
 const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
-
+const editMode = ref(false)
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
@@ -406,6 +488,13 @@ watch(isSuccessCreatePedido, (isSuccess) => {
     }
 });
 
+watch(isSuccessUpdatePedido, (isSuccess) => {
+    if (isSuccess) {
+        // Forzar refresco manual como respaldo
+        refetchPedidoDestino();
+    }
+});
+
 watch(pedidoTipoIglesia, (nuevoPedido) => {
     if (nuevoPedido === null && userData.value?.id_persona) {
         // No pedido exists for this period, reload materials
@@ -422,5 +511,74 @@ const initializeOrder = async () => {
 
 // Call initializeOrder when component mounts
 initializeOrder();
+
+// Funciones para manejar la edición del pedido
+const enableEditMode = async () => {
+    // Primero asegurarse de que los materiales estén cargados
+    if (!materialesIglesia.value || materialesIglesia.value.length === 0) {
+        await refetchMaterialesIglesia();
+    }
+
+    editMode.value = true;
+
+    // Cargar los materiales del pedido actual para editar
+    if (pedidoTipoIglesia.value?.detalles && materialesIglesia.value) {
+        // Mapear los detalles del pedido a los materiales
+        const materialesConCantidad = materialesIglesia.value.map((material: any) => {
+            const detalle = pedidoTipoIglesia.value.detalles.find((d: any) => d.id_material === material.id_material);
+            return {
+                ...material,
+                cantidad: detalle ? detalle.cantidad : 0
+            };
+        });
+        materiales.value = materialesConCantidad;
+    }
+};
+
+const cancelEditMode = () => {
+    editMode.value = false;
+    // Resetear las cantidades a cero
+    if (materialesIglesia.value) {
+        materiales.value = materialesIglesia.value.map((m: any) => ({
+            ...m,
+            cantidad: 0
+        }));
+    }
+};
+
+const saveEditedPedido = async () => {
+    if (!pedidoTipoIglesia.value?.id_pedido) return;
+
+    try {
+        const payload = {
+            id_persona: pedidoTipoIglesia.value.id_persona,
+            id_destino: pedidoTipoIglesia.value.id_destino,
+            id_periodo: pedidoTipoIglesia.value.id_periodo,
+            id_iglesia: pedidoTipoIglesia.value.id_iglesia,
+            tipo: pedidoTipoIglesia.value.tipo,
+            tipo_suscripcion: pedidoTipoIglesia.value.tipo_suscripcion,
+            detalles: materiales.value
+                .filter((item: any) => item.cantidad > 0)
+                .map((item: any) => ({
+                    id_material: item.id_material,
+                    cantidad: item.cantidad
+                }))
+        };
+
+        await updatePedido({
+            id_pedido: pedidoTipoIglesia.value.id_pedido,
+            payload
+        });
+
+        editMode.value = false;
+        messageSuccces.value = true;
+
+        setTimeout(() => {
+            messageSuccces.value = false;
+        }, 3000);
+    } catch (error) {
+        console.error('Error al actualizar el pedido:', error);
+    }
+};
 
 </script>
