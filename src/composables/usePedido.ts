@@ -2,7 +2,7 @@ import { usePeriodoStore } from '@/stores/periodoStore'
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn, updatePedidoFn } from '@/services/pedido.service';
+import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn, updatePedidoFn, deletePedidoFn } from '@/services/pedido.service';
 
 const usePedido = () => {
 
@@ -146,6 +146,21 @@ const usePedido = () => {
         return { mutate, isPending, isSuccess, isError };
     }
 
+    function useDeletePedido() {
+        const { mutate, isPending, isSuccess, isError } = useMutation({
+            mutationKey: ['delete-pedido'],
+            mutationFn: (id_pedido: number) => deletePedidoFn(id_pedido),
+            onSuccess: (data) => {
+                // Invalidar todas las queries relacionadas para forzar actualización completa
+                queryClient.invalidateQueries({
+                    queryKey: ['show-pedido-by-id-destino']
+                });
+                return data;
+            }
+        });
+        return { mutate, isPending, isSuccess, isError };
+    }
+
     return {
         selectedPersona,
         materiales,
@@ -156,6 +171,7 @@ const usePedido = () => {
         useShowPedidoByIdDestino,
         useCreatePedido,
         useUpdatePedido,
+        useDeletePedido,
     }
 }
 

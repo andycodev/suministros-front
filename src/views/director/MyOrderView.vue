@@ -85,7 +85,8 @@
                         </div>
                     </div>
                     <div class="w-full max-w-3xl mx-auto space-y-3">
-                        <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino">Cargando ...</div>
+                        <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino || isDeletingPedido">Cargando
+                            ...</div>
                         <template v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.id_persona)">
                             <div class="max-w-4xl mx-auto p-6">
                                 <!-- Header -->
@@ -168,8 +169,10 @@
                                                 class="btn btn-secondary btn-outline flex-1">
                                                 Cancelar
                                             </button>
-                                            <button v-if="!editMode" class="btn btn-error btn-outline flex-1">
-                                                Eliminar Pedido
+                                            <button v-if="!editMode" @click="eliminarPedido()"
+                                                class="btn btn-error btn-outline flex-1"
+                                                :disabled="isPendingDeletePedido">
+                                                {{ isPendingDeletePedido ? 'Eliminando...' : 'Eliminar Pedido' }}
                                             </button>
                                         </div>
 
@@ -246,7 +249,7 @@
                             </div>
                         </template>
                         <template v-else>
-                            <div v-if="totalItems > 0" class="sticky top-0 z-10 bg-white pb-2">
+                            <div v-if="materiales.length > 0" class="sticky top-0 z-10 bg-white pb-2">
                                 <!-- Search Bar -->
                                 <div class="relative">
                                     <input type="text" v-model="searchQuery" placeholder="Buscar materiales..."
@@ -335,7 +338,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watchEffect, computed, watch } from 'vue';
+import { ref, watchEffect, computed, watch, nextTick } from 'vue';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
@@ -348,15 +351,17 @@ const store = usePeriodoStore()
 const { idPeriodoSeleccionado } = storeToRefs(store)
 
 const { userData } = usePersona()
-const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido, useUpdatePedido } = usePedido()
+const { selectedPersona, materiales, useShowPedidoByIdDestino, useGetMaterialesIglesia, useCreatePedido, useUpdatePedido, useDeletePedido } = usePedido()
 const { data: materialesIglesia, isLoading: isLoadingMaterialesIglesia, refetch: refetchMaterialesIglesia } = useGetMaterialesIglesia()
 const { mutate: createPedido, isPending: isPendingCreatePedido, isSuccess: isSuccessCreatePedido } = useCreatePedido()
 const { mutate: updatePedido, isPending: isPendingUpdatePedido, isSuccess: isSuccessUpdatePedido } = useUpdatePedido()
+const { mutate: deletePedido, isPending: isPendingDeletePedido, isSuccess: isSuccessDeletePedido } = useDeletePedido()
 const { data: pedidoDestino, isLoading: isLoadingPedidoDestino, refetch: refetchPedidoDestino } = useShowPedidoByIdDestino()
 
 const searchQuery = ref('')
 const messageSuccces = ref(false)
 const editMode = ref(false)
+const isDeletingPedido = ref(false)
 
 const pedidoTipoIglesia = computed(() => {
     if (!pedidoDestino.value || !Array.isArray(pedidoDestino.value)) return null
@@ -495,6 +500,13 @@ watch(isSuccessUpdatePedido, (isSuccess) => {
     }
 });
 
+watch(isSuccessDeletePedido, (isSuccess) => {
+    if (isSuccess && selectedPersona.value) {
+        // Forzar refresco manual como respaldo solo si hay una persona seleccionada
+        refetchPedidoDestino();
+    }
+});
+
 watch(pedidoTipoIglesia, (nuevoPedido) => {
     if (nuevoPedido === null && userData.value?.id_persona) {
         // No pedido exists for this period, reload materials
@@ -578,6 +590,46 @@ const saveEditedPedido = async () => {
         }, 3000);
     } catch (error) {
         console.error('Error al actualizar el pedido:', error);
+    }
+};
+
+const eliminarPedido = async () => {
+    if (!pedidoTipoIglesia.value?.id_pedido) return;
+
+    if (!confirm('¿Estás seguro de que deseas eliminar este pedido? Esta acción no se puede deshacer.')) {
+        return;
+    }
+
+    try {
+        isDeletingPedido.value = true;
+
+        await deletePedido(pedidoTipoIglesia.value.id_pedido);
+
+        // Mostrar mensaje de éxito
+        messageSuccces.value = true;
+        setTimeout(() => {
+            messageSuccces.value = false;
+        }, 3000);
+
+        // Resetear todo el estado
+        editMode.value = false;
+        materiales.value = [];
+        materialesIglesia.value = [];
+        pedidoDestino.value = null;
+        searchQuery.value = '';
+
+        // Forzar recarga completa desde cero
+        if (userData.value?.id_persona) {
+            // Esperar un poco y luego recargar todo
+            setTimeout(async () => {
+                await selectPersona();
+            }, 100);
+        }
+
+        isDeletingPedido.value = false;
+    } catch (error) {
+        console.error('Error al eliminar el pedido:', error);
+        isDeletingPedido.value = false;
     }
 };
 
