@@ -17,8 +17,21 @@
       <router-view />
     </Main>
   </template>
+  <div class="h-screen flex items-center justify-center">
+    <!--   <button @click="triggerNotify" class="btn btn-accent">
+      Guardar Cambios
+    </button> -->
+
+    <Notification v-bind="notificationState" @close="notificationState.show = false" />
+  </div>
 </template>
 
 <script lang="ts" setup>
 import Main from './layouts/Main.vue'
+import Notification from './components/shared/Notification.vue'
+import { notificationState, showNotification } from './events/notificationEvents'
+
+/* const triggerNotify = () => {
+  showNotification('¡Datos guardados correctamente!', 'alert-success')
+} */
 </script>

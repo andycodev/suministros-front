@@ -100,11 +100,11 @@
               <span class="label-text text-sm font-medium text-gray-600">Documento (DNI)</span>
             </label>
             <input v-model="filters.documento" type="text" class="input input-bordered  w-full"
-              placeholder="Escriba su número de documento" @keyup.enter="searPerson()" />
+              placeholder="Escriba su número de documento" @keyup.enter="searchPerson()" />
           </fieldset>
 
-          <button class="btn btn-neutral btn-block mt-8" @click="searPerson()">
-            {{ isRefetchingPersonas ? 'Buscando persona ...' : 'Buscar persona' }}
+          <button class="btn btn-neutral btn-block mt-8" @click="searchPerson()">
+            {{ isRefetchingPersonas ? 'Buscando persona ...' : 'Buscar personas' }}
           </button>
 
           <!-- Totalizador -->
@@ -621,7 +621,7 @@ watch(isSuccessCreatePedido, (isSuccess) => {
   }
 });
 
-const searPerson = async () => {
+const searchPerson = async () => {
   selectedPersona.value = null;
   pedidoDestino.value = null;
   materialesPersona.value = [];
@@ -641,7 +641,7 @@ const debounce = (func: Function, delay: number) => {
 // Watch for DNI changes to auto-search
 const debouncedSearch = debounce(() => {
   if (filters.documento && filters.documento.length >= 8) {
-    searPerson();
+    searchPerson();
   }
 }, 500);
 
