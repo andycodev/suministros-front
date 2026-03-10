@@ -37,10 +37,10 @@ export const createPedidoFn = async (payload: any) => {
     return data;
 }
 
-export const createPedidoFn2 = async (data: any) => {
+/* export const createPedidoFn2 = async (data: any) => {
     const { data: response } = await baseApi.post(`${endPointUrl}/pedidos`, data);
     return response;
-}
+} */
 
 export const updatePedidoFn = async (id_pedido: number, payload: any) => {
     const { data } = await baseApi.put(`${endPointUrl}/pedidos/${id_pedido}`, payload);
@@ -49,5 +49,15 @@ export const updatePedidoFn = async (id_pedido: number, payload: any) => {
 
 export const deletePedidoFn = async (id_pedido: number) => {
     const { data } = await baseApi.delete(`${endPointUrl}/pedidos/${id_pedido}`);
+    return data;
+}
+
+export const payAbono = async (payload: any) => {
+    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-abono`, payload);
+    return data;
+}
+
+export const payPasarela = async (payload: any) => {
+    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-pasarela`, payload);
     return data;
 }

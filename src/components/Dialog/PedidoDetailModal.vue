@@ -43,17 +43,72 @@
                                 <div class="text-xs opacity-50">{{ detalle.material.descripcion }}</div>
                             </td>
                             <td class="text-center">{{ detalle.cantidad }}</td>
-                            <td class="text-right">${{ detalle.precio_unit }}</td>
-                            <td class="text-right font-semibold">${{ detalle.subtotal }}</td>
+                            <td class="text-right">S/{{ detalle.precio_unit }}</td>
+                            <td class="text-right font-semibold">S/{{ detalle.subtotal }}</td>
                         </tr>
                     </tbody>
                     <tfoot>
                         <tr>
                             <td colspan="3" class="text-right font-bold text-lg">Total:</td>
-                            <td class="text-right font-bold text-lg text-primary">${{ data?.total_monto }}</td>
+                            <td class="text-right font-bold text-lg text-primary">S/{{ data?.total_monto }}</td>
                         </tr>
                     </tfoot>
                 </table>
+            </div>
+
+            <div class="mt-8">
+                <h4 class="text-lg font-semibold mb-3 border-b pb-2 flex items-center gap-2">
+                    Historial de Pagos
+                    <span class="badge badge-sm badge-ghost">{{ data?.pagos?.length }}</span>
+                </h4>
+
+                <div class="overflow-x-auto">
+                    <table class="table table-xs w-full">
+                        <thead>
+                            <tr class="bg-base-200">
+                                <th>Código de transacción</th>
+                                <th>Método</th>
+                                <th>Fecha</th>
+                                <th class="text-right">Monto</th>
+                                <!-- <th class="text-center">Estado</th> -->
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr v-for="pago in data?.pagos" :key="pago.id_pago">
+                                <td class="font-mono text-xs">{{ pago.transaccion_id }}</td>
+                                <td>
+                                    <div class="flex flex-col">
+                                        <span class="font-bold">{{ pago.metodo_pago }}</span>
+                                        <span v-if="pago.raw_response?.card" class="text-[10px] opacity-70">
+                                            {{ pago.raw_response.brand }}: {{ pago.raw_response.card }}
+                                        </span>
+                                    </div>
+                                </td>
+                                <td>{{ new Date(pago.fecha_pago).toLocaleString() }}</td>
+                                <td class="text-right font-bold text-success">S/{{ pago.monto }}</td>
+                                <!-- <td class="text-center">
+                                    <span class="badge badge-outline badge-xs"
+                                        :class="pago.estado_visanet === 'COMPLETADO' || pago.estado_visanet === 'AUTORIZADO' ? 'badge-success' : 'badge-error'">
+                                        {{ pago.estado_visanet }}
+                                    </span>
+                                </td> -->
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+
+                <div class="flex flex-col items-end mt-4 p-3 bg-base-200 rounded-lg">
+                    <div class="flex justify-between w-full max-w-[200px] text-sm">
+                        <span>Total Pagado:</span>
+                        <span class="font-bold text-success">S/{{ data?.total_pagado }}</span>
+                    </div>
+                    <div class="flex justify-between w-full max-w-[200px] text-sm">
+                        <span>Saldo Pendiente:</span>
+                        <span class="font-bold" :class="data?.saldo_pendiente > 0 ? 'text-error' : 'text-success'">
+                            S/{{ data?.saldo_pendiente }}
+                        </span>
+                    </div>
+                </div>
             </div>
 
             <div class="modal-action">
