@@ -67,7 +67,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="isPendingMisPedidosPagos && !misPedidosPagos">
+                            <tr v-if="isPendingMisPedidosPagos && !misPedidosPagos && hasPendingPayments">
                                 <td colspan="9" class="text-center py-12">
                                     <span class="loading loading-spinner loading-md text-primary"></span>
                                     <div class="text-xs mt-2 text-base-content/50 uppercase tracking-widest">Cargando
@@ -75,7 +75,7 @@
                                 </td>
                             </tr>
 
-                            <tr v-else-if="!misPedidosPagos?.length">
+                            <tr v-else-if="!isPendingMisPedidosPagos && misPedidosPagos && !misPedidosPagos.length">
                                 <td colspan="9" class="text-center py-12">
                                     <div class="flex flex-col items-center gap-4">
                                         <div
@@ -116,7 +116,7 @@
                                 </td>
                             </tr>
 
-                            <tr v-else v-for="(pedido, index) in misPedidosPagos" :key="pedido.id_pedido"
+                            <tr v-else v-for="(pedido, index) in pedidosConSaldoPendiente" :key="pedido.id_pedido"
                                 class="hover transition-colors">
                                 <td class="text-center">
                                     <input type="checkbox" class="checkbox checkbox-xs" :value="pedido.id_pedido"
@@ -161,7 +161,7 @@
                                             <span
                                                 class="text-[10px] text-base-content/40 font-bold uppercase">Total</span>
                                             <span class="font-bold text-sm">S/ {{ Number(pedido.total_monto).toFixed(2)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                     </div>
                                     <div v-if="pedido.total_pagado > 0"
@@ -176,7 +176,7 @@
                                             <span class="text-error font-medium">Saldo:</span>
                                             <span class="text-error font-bold font-mono text-[11px]">S/ {{
                                                 Number(pedido.saldo_pendiente).toFixed(2)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                         <span class="text-[9px] text-base-content/40 italic">
                                             {{ pedido.pagos.length }} {{ pedido.pagos.length === 1 ? 'abono' :
@@ -348,7 +348,7 @@ interface Pedido {
 
 const { filters, useGetMisPedidosPagos } = useMassivePayments();
 
-const { data: misPedidosPagos, isPending: isPendingMisPedidosPagos } = useGetMisPedidosPagos();
+const { data: misPedidosPagos, isPending: isPendingMisPedidosPagos, refetch } = useGetMisPedidosPagos();
 
 // Selección de pedidos
 const selectedPedidos = ref<number[]>([]);
@@ -364,17 +364,21 @@ const selectedPedidosData = ref<any[]>([]);
 const isProcessing = ref(false);
 
 // Computed properties
-const allSelected = computed(() => {
-    if (!misPedidosPagos.value) return false;
-    const eligiblePedidos = misPedidosPagos.value.filter((p: Pedido) =>
+const pedidosConSaldoPendiente = computed(() => {
+    if (!misPedidosPagos.value) return [];
+    return misPedidosPagos.value.filter((p: Pedido) =>
         p.estado !== 'ANULADO' && p.estado !== 'ENTREGADO' && p.saldo_pendiente > 0
     );
+});
+
+const allSelected = computed(() => {
+    const eligiblePedidos = pedidosConSaldoPendiente.value;
     return eligiblePedidos.length > 0 && selectedPedidos.value.length === eligiblePedidos.length;
 });
 
 const totalSelected = computed(() => {
     return selectedPedidos.value.reduce((total, pedidoId) => {
-        const pedido = misPedidosPagos.value?.find((p: Pedido) => p.id_pedido === pedidoId);
+        const pedido = pedidosConSaldoPendiente.value.find((p: Pedido) => p.id_pedido === pedidoId);
         return total + (pedido?.saldo_pendiente || 0);
     }, 0);
 });
@@ -398,19 +402,12 @@ const isFormValid = computed(() => {
 });
 
 const hasPendingPayments = computed(() => {
-    if (!misPedidosPagos.value) return false;
-    return misPedidosPagos.value.some((p: Pedido) =>
-        p.estado !== 'ANULADO' && p.estado !== 'ENTREGADO' && p.saldo_pendiente > 0
-    );
+    return pedidosConSaldoPendiente.value.length > 0;
 });
 
 // Métodos
 const toggleSelectAll = () => {
-    if (!misPedidosPagos.value) return;
-
-    const eligiblePedidos = misPedidosPagos.value.filter((p: Pedido) =>
-        p.estado !== 'ANULADO' && p.estado !== 'ENTREGADO' && p.saldo_pendiente > 0
-    );
+    const eligiblePedidos = pedidosConSaldoPendiente.value;
 
     if (allSelected.value) {
         selectedPedidos.value = [];
@@ -430,7 +427,7 @@ const openMassivePaymentModal = () => {
 
     // Preparar datos de pedidos seleccionados con montos a pagar
     selectedPedidosData.value = selectedPedidos.value.map(pedidoId => {
-        const pedido = misPedidosPagos.value?.find((p: Pedido) => p.id_pedido === pedidoId);
+        const pedido = pedidosConSaldoPendiente.value.find((p: Pedido) => p.id_pedido === pedidoId);
         return {
             ...pedido,
             monto_a_pagar: pedido?.saldo_pendiente || 0
@@ -489,6 +486,7 @@ const processMassivePayment = async () => {
         closeMassivePaymentModal();
 
         // Refrescar datos
+        refetch();
         // Aquí podrías agregar una notificación de éxito
 
     } catch (error) {
