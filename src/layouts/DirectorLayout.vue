@@ -82,6 +82,17 @@
                         </router-link>
                     </li>
                     <li>
+                        <router-link to="/director/massive-payments" class="flex items-center space-x-3"
+                            :class="{ 'active': isActive('/director/massive-payments') }">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
+                                stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M9 17v1a1 1 0 001 1h4a1 1 0 001-1v-1m3-2V8a2 2 0 00-2-2H8a2 2 0 00-2 2v6m9-1h-6" />
+                            </svg>
+                            <span>Pagos Masivos</span>
+                        </router-link>
+                    </li>
+                    <li>
                         <router-link to="/director/settings" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/settings') }">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"

@@ -12,6 +12,7 @@ import DirectorPayView from '@/views/director/PayView.vue'
 import MaterialsView from '@/views/director/MaterialsView.vue'
 import ReportsView from '@/views/director/ReportsView.vue'
 import SettingsView from '@/views/director/SettingsView.vue'
+import MassivePaymentsView from '@/views/director/MassivePaymentsView.vue'
 
 const routes = [
   { path: '/order', component: OrderView },
@@ -61,6 +62,10 @@ const routes = [
       {
         path: 'reports',
         component: ReportsView,
+      },
+      {
+        path: 'massive-payments',
+        component: MassivePaymentsView,
       },
       {
         path: 'settings',

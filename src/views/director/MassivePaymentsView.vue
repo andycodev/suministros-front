@@ -2,79 +2,25 @@
     <div class="p-6">
         <h1 class="text-2xl font-bold mb-6">Mis Pedidos</h1>
         <!-- Filtros -->
-        <div class="card bg-base-100 shadow-sm mb-6">
+        <!-- <div class="card bg-base-100 shadow-sm mb-6">
             <div class="card-body">
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                    <!-- Tipo -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-medium">Tipo</span>
-                        </label>
-                        <select v-model="filters.tipo" class="select select-bordered select-sm w-full"
-                            @change="() => refetchMisPedidos()">
-                            <option value="">Todos</option>
-                            <!-- <option disabled :value="null" :selected="filters.tipo == null">Seleccione el
-                                tipo</option> -->
-                            <option v-for="tipoPedido in tipoPedidos" :key="tipoPedido.id" :value="tipoPedido.value">
-                                {{ tipoPedido.nombre }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Tiposuscripcion -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-medium">Tiposuscripcion</span>
-                        </label>
-                        <select v-model="filters.tipo_suscripcion" class="select select-bordered select-sm w-full"
-                            @change="() => refetchMisPedidos()">
-                            <option value="">Todos</option>
-                            <!--  <option disabled :value="null" :selected="filters.tipo_suscripcion == null">Seleccione el
-                                tipo_suscripcion</option> -->
-                            <option v-for="tiposuscripcionPedido in tiposuscripcionPedidos"
-                                :key="tiposuscripcionPedido.id" :value="tiposuscripcionPedido.value">
-                                {{ tiposuscripcionPedido.nombre }}
-                            </option>
-                        </select>
-                    </div>
-
-                    <!-- Estado -->
                     <div class="form-control">
                         <label class="label">
                             <span class="label-text font-medium">Estado</span>
                         </label>
                         <select v-model="filters.estado" class="select select-bordered select-sm w-full"
-                            @change="() => refetchMisPedidos()">
+                            @change="() => refetchMisPedidosPagos()">
                             <option value="">Todos</option>
-                            <!--  <option disabled :value="null" :selected="filters.estado == null">Seleccione el
-                                estado</option> -->
                             <option v-for="estadoPedido in estadoPedidos" :key="estadoPedido.id"
                                 :value="estadoPedido.value">
                                 {{ estadoPedido.nombre }}
                             </option>
                         </select>
                     </div>
-
-                    <!-- Código -->
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text font-medium">Código</span>
-                        </label>
-                        <input v-model="filters.codigo" type="text" placeholder="Buscar código..."
-                            class="input input-bordered input-sm w-full" @input="debouncedRefetch" />
-                    </div>
-                    <!-- 
-                    <div class="form-control">
-                        <label class="label">
-                            <span class="label-text">&nbsp;</span>
-                        </label>
-                        <button class="btn btn-neutral btn-sm w-full">
-                            Filtrar
-                        </button>
-                    </div> -->
                 </div>
             </div>
-        </div>
+        </div> -->
         <!-- Tabla -->
         <div class="card bg-base-100 shadow-sm border border-base-200">
             <div class="card-body p-0">
@@ -93,7 +39,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="isPendingMisPedidos">
+                            <tr v-if="isPendingMisPedidosPagos">
                                 <td colspan="8" class="text-center py-12">
                                     <span class="loading loading-spinner loading-md text-primary"></span>
                                     <div class="text-xs mt-2 text-base-content/50 uppercase tracking-widest">Cargando
@@ -101,7 +47,7 @@
                                 </td>
                             </tr>
 
-                            <tr v-else-if="!misPedidos?.length">
+                            <tr v-else-if="!misPedidosPagos?.length">
                                 <td colspan="8" class="text-center py-12 text-base-content/60">
                                     <div class="flex flex-col items-center gap-2">
                                         <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-20" fill="none"
@@ -114,7 +60,7 @@
                                 </td>
                             </tr>
 
-                            <tr v-else v-for="(pedido, index) in misPedidos" :key="pedido.id_pedido"
+                            <tr v-else v-for="(pedido, index) in misPedidosPagos" :key="pedido.id_pedido"
                                 class="hover transition-colors">
                                 <th class="font-normal text-center text-base-content/50">{{ Number(index) + 1 }}</th>
 
@@ -264,10 +210,12 @@ import BadgeTiposuscripcionPedido from '@/components/shared/BadgeTiposuscripcion
 import BadgeEstadoPedido from '@/components/shared/BadgeEstadoPedido.vue';
 import PedidoDetailModal from '@/components/Dialog/PedidoDetailModal.vue';
 import PedidoAbonoModal from '@/components/Dialog/PedidoAbonoModal.vue';
+import useMassivePayments from '@/composables/useMassivePayments';
 
-const { filters, useGetMisPedidos, tipoPedidos, tiposuscripcionPedidos, estadoPedidos } = useReport();
+const { estadoPedidos } = useReport();
+const { filters, useGetMisPedidosPagos } = useMassivePayments();
 
-const { data: misPedidos, isPending: isPendingMisPedidos, refetch: refetchMisPedidos, isRefetching: isRefetchingMisPedidos } = useGetMisPedidos();
+const { data: misPedidosPagos, isPending: isPendingMisPedidosPagos, refetch: refetchMisPedidosPagos, isRefetching: isRefetchingMisPedidosPagos } = useGetMisPedidosPagos();
 
 
 // Debounce para el campo de código
@@ -275,7 +223,7 @@ let timeoutId: NodeJS.Timeout;
 const debouncedRefetch = () => {
     clearTimeout(timeoutId);
     timeoutId = setTimeout(() => {
-        refetchMisPedidos();
+        refetchMisPedidosPagos();
     }, 500);
 };
 
@@ -301,6 +249,6 @@ const closeModal = (cancel: any) => {
 
 const handlePagoExitoso = () => {
     // Refrescar los datos de la tabla
-    refetchMisPedidos();
+    refetchMisPedidosPagos();
 };
 </script>

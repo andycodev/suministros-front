@@ -7,3 +7,8 @@ export const getMisPedidosFn = async (filters: any) => {
     return data;
 }
 
+export const getMisPedidosPagosFn = async (filters: any) => {
+    const { data } = await baseApi.get(`${endPointUrl}/mis-pedidos-pagos`, { params: filters });
+    return data;
+}
+

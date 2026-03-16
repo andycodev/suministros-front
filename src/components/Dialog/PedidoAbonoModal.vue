@@ -76,6 +76,7 @@
 
 <script setup>
 import { ref, reactive, computed, watch } from 'vue';
+import { payAbono } from '@/services/pedido.service';
 
 const props = defineProps({
     dialogOpen: Boolean,
@@ -83,7 +84,7 @@ const props = defineProps({
     loading: Boolean // Para controlar el estado del botón desde el padre
 });
 
-const emit = defineEmits(['close-modal', 'submit-pago']);
+const emit = defineEmits(['close-modal', 'pago-exitoso']);
 
 // Estado del formulario
 const form = reactive({
@@ -92,13 +93,26 @@ const form = reactive({
     metodo_pago: 'EFECTIVO'
 });
 
+// Función para inicializar el formulario
+const initializeForm = () => {
+    form.id_pedido = props.data.id_pedido;
+    form.monto = null; // Limpiar monto previo
+    form.metodo_pago = 'EFECTIVO'; // Resetear método de pago
+};
+
 // Inicializar id cuando el modal abre
 watch(() => props.dialogOpen, (newVal) => {
     if (newVal && props.data) {
-        form.id_pedido = props.data.id_pedido;
-        form.monto = null; // Limpiar monto previo
+        initializeForm();
     }
 });
+
+// También observar cambios en los datos
+watch(() => props.data, (newData) => {
+    if (newData && props.dialogOpen) {
+        initializeForm();
+    }
+}, { immediate: true });
 
 // Validación reactiva del monto
 const errorMonto = computed(() => {
@@ -114,10 +128,31 @@ const cerrarModal = () => {
     if (!props.loading) emit('close-modal');
 };
 
-const handleSubmit = () => {
+const handleSubmit = async () => {
     if (errorMonto.value) return;
 
-    // Emitimos el objeto tal cual lo necesitas para el backend
-    emit('submit-pago', { ...form });
+    if (!form.id_pedido) {
+        console.error('Error: id_pedido no está definido');
+        return;
+    }
+
+    try {
+        // Preparar payload exacto como espera el backend
+        const payload = {
+            id_pedido: form.id_pedido,
+            monto: form.monto,
+            metodo_pago: form.metodo_pago
+        };
+
+        // Llamar al servicio payAbono con los datos del formulario
+        const response = await payAbono(payload);
+
+        // Emitir evento de éxito y cerrar modal
+        emit('pago-exitoso', response);
+        emit('close-modal');
+    } catch (error) {
+        console.error('Error al procesar el abono:', error);
+        // Aquí podrías mostrar una notificación de error
+    }
 };
 </script>

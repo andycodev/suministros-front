@@ -61,3 +61,8 @@ export const payPasarela = async (payload: any) => {
     const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-pasarela`, payload);
     return data;
 }
+
+export const payMasivo = async (payload: any) => {
+    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-masivo`, payload);
+    return data;
+}
