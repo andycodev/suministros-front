@@ -67,8 +67,8 @@
                             </tr>
                         </thead>
                         <tbody>
-                            <tr v-if="isPendingMisPedidosPagos">
-                                <td colspan="8" class="text-center py-12">
+                            <tr v-if="isPendingMisPedidosPagos && !misPedidosPagos">
+                                <td colspan="9" class="text-center py-12">
                                     <span class="loading loading-spinner loading-md text-primary"></span>
                                     <div class="text-xs mt-2 text-base-content/50 uppercase tracking-widest">Cargando
                                         pedidos...</div>
@@ -76,14 +76,42 @@
                             </tr>
 
                             <tr v-else-if="!misPedidosPagos?.length">
-                                <td colspan="8" class="text-center py-12 text-base-content/60">
-                                    <div class="flex flex-col items-center gap-2">
-                                        <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 opacity-20" fill="none"
-                                            viewBox="0 0 24 24" stroke="currentColor">
-                                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                                                d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
-                                        </svg>
-                                        <span>No se encontraron pedidos registrados</span>
+                                <td colspan="9" class="text-center py-12">
+                                    <div class="flex flex-col items-center gap-4">
+                                        <div
+                                            class="w-16 h-16 bg-base-200 rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-base-content/40"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M20 13V6a2 2 0 00-2-2H6a2 2 0 00-2 2v7m16 0v5a2 2 0 01-2 2H6a2 2 0 01-2-2v-5m16 0h-2.586a1 1 0 00-.707.293l-2.414 2.414a1 1 0 01-.707.293h-3.172a1 1 0 01-.707-.293l-2.414-2.414A1 1 0 006.586 13H4" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-base-content/80 mb-1">No hay pedidos
+                                                registrados</h3>
+                                            <p class="text-sm text-base-content/60">Aún no tienes ningún pedido en el
+                                                sistema</p>
+                                        </div>
+                                    </div>
+                                </td>
+                            </tr>
+
+                            <tr v-else-if="!hasPendingPayments">
+                                <td colspan="9" class="text-center py-12">
+                                    <div class="flex flex-col items-center gap-4">
+                                        <div
+                                            class="w-16 h-16 bg-success/10 rounded-full flex items-center justify-center">
+                                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-success"
+                                                fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                                    d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                                            </svg>
+                                        </div>
+                                        <div>
+                                            <h3 class="text-lg font-semibold text-success mb-1">¡Todo al día!</h3>
+                                            <p class="text-sm text-base-content/60">No tienes pagos pendientes en tus
+                                                pedidos</p>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -367,6 +395,13 @@ const isFormValid = computed(() => {
         selectedPedidosData.value.length > 0 &&
         selectedPedidosData.value.every(p => p.monto_a_pagar > 0) &&
         diferencia.value === 0; // El total debe cuadrar exactamente
+});
+
+const hasPendingPayments = computed(() => {
+    if (!misPedidosPagos.value) return false;
+    return misPedidosPagos.value.some((p: Pedido) =>
+        p.estado !== 'ANULADO' && p.estado !== 'ENTREGADO' && p.saldo_pendiente > 0
+    );
 });
 
 // Métodos
