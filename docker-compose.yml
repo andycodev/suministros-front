@@ -2,6 +2,8 @@ version: '3.8'
 
 services:
   suministros-front:
+    container_name: suministros-front
+    image: suministros/frontend:${TAG:-latest}
     build:
       context: .
       dockerfile: Dockerfile
