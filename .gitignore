@@ -22,3 +22,15 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# --- DOCKER & ENTORNO ---
+# Ignora el archivo de variables reales (Contiene tus claves de Neon)
+.env
+.env.development
+.env.production
+
+# Ignora tu "capa de desarrollo" personal
+docker-compose.override.yml
+
+# Datos persistentes de Docker
+.docker/

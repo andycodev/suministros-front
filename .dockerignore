@@ -42,3 +42,14 @@ README.md
 .eslintrc*
 .prettierrc*
 jest.config.*
+
+# No meter el archivo de override en la imagen de producción
+docker-compose.override.yml
+
+# No meter el .env (Las variables se pasan por el docker-compose o el panel del servidor)
+.env
+.env.*
+
+# Evitar meter archivos de Docker en la propia imagen
+docker-compose.yml
+Dockerfile
