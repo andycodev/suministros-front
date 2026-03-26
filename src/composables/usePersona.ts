@@ -42,7 +42,7 @@ const usePersona = () => {
 
     /* Methods */
     function useGetIglesiaUnions() {
-        const { data, isPending } = useQuery({
+        const { data, isFetching } = useQuery({
             queryKey: computed(() => ['iglesia-unions']),
             queryFn: async () => {
                 const data = await getIglesiaUnionsFn()
@@ -51,11 +51,11 @@ const usePersona = () => {
             },
             enabled: computed(() => true),
         });
-        return { data, isPending }
+        return { data, isFetching }
     }
 
     function useGetIglesiaCamposByUnion() {
-        const { data, isPending } = useQuery({
+        const { data, isPending, isFetching } = useQuery({
             queryKey: computed(() => ['iglesia-campos-by-union', filters.value.id_union]),
             queryFn: async () => {
                 const data = await getIglesiaCamposByUnion(filters.value.id_union);
@@ -65,47 +65,50 @@ const usePersona = () => {
             enabled: computed(() => !!filters.value.id_union),
         });
         // watch(() => filters.value.id_union, () => filters.value.id_campo = null);
-        return { data, isPending }
+        return { data, isPending, isFetching }
     }
 
     function useGetIglesiaDistritosByCampo() {
-        const { data, isPending } = useQuery({
+        const { data, isPending, isFetching } = useQuery({
             queryKey: computed(() => ['iglesia-distritos-by-campo', filters.value.id_campo]),
             queryFn: async () => {
                 const data = await getIglesiaDistritosByCampo(filters.value.id_campo);
                 // filters.value.id_distrito = data[0]?.id_distrito || null
                 return data
             },
+            // meta: { show: true, text: 'Cargando distritos...' },
             enabled: computed(() => !!filters.value.id_campo),
         });
         // watch(() => filters.value.id_campo, () => filters.value.id_distrito = null);
-        return { data, isPending }
+        return { data, isPending, isFetching }
     }
 
     function useGetIglesiaIglesiasByDistrito() {
-        const { data, isPending } = useQuery({
+        const { data, isPending, isFetching } = useQuery({
             queryKey: computed(() => ['iglesia-iglesias-by-distrito', filters.value.id_distrito]),
             queryFn: async () => {
                 const data = await getIglesiaIglesiasByDistrito(filters.value.id_distrito);
                 // filters.value.id_iglesia = data[0]?.id_iglesia || null
                 return data
             },
+            //  meta: { show: true, text: 'Cargando iglesias...' },
             enabled: computed(() => !!filters.value.id_distrito),
         });
         // watch(() => filters.value.id_distrito, () => filters.value.id_iglesia = null);
-        return { data, isPending }
+        return { data, isPending, isFetching }
     }
 
     function useSearchPersona() {
-        const { data, isPending, refetch, isRefetching } = useQuery({
+        const { data, isPending, refetch, isFetching } = useQuery({
             queryKey: computed(() => ['search-persona', filters.value]),
             queryFn: async () => {
                 const data = await searchPersonaFn(filters.value);
                 return data
             },
+            meta: { show: true, text: 'Buscando personas ...' },
             enabled: computed(() => false),
         });
-        return { data, isPending, refetch, isRefetching }
+        return { data, isPending, refetch, isFetching }
     }
 
     function useGetPersonaById() {

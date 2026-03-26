@@ -18,9 +18,4 @@
 </template>
 
 <script lang="ts" setup>
-import { ref } from 'vue'
-//import Navbar from './Navbar.vue'
-import Sidebar from './Sidebar.vue'
-
-const sidebarOpen = ref(false)
 </script>

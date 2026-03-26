@@ -28,7 +28,7 @@ export const getTipoPedidosFn = () => [
 ]
 
 export const getTiposuscripcionPedidosFn = () => [
-    { id: 1, value: 'P', nombre: 'Presencial' },
+    { id: 1, value: 'F', nombre: 'Físico' },
     { id: 2, value: 'V', nombre: 'Virtual' },
 ]
 

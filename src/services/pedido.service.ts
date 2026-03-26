@@ -7,33 +7,23 @@ export const getPeriodosFn = async () => {
     return data;
 }
 
-export const getMaterialesPersonaFn = async () => {
-    const { data } = await baseApi.get(`${endPointUrl}/materiales-personas`);
-    return data;
-}
-
-export const getMaterialesIglesiaFn = async () => {
-    const { data } = await baseApi.get(`${endPointUrl}/materiales-iglesias`);
-    return data;
-}
-
 export const showPedidoByIdPedidoFn = async (id_pedido: number) => {
-    const { data } = await baseApi.get(`${endPointUrl}/pedidos/${id_pedido}`);
+    const { data: { data } } = await baseApi.get(`${endPointUrl}/pedidos/${id_pedido}`);
     return data;
 }
 
 export const showPedidoByIdPersonaFn = async (id_persona: number) => {
-    const { data } = await baseApi.get(`${endPointUrl}/pedidos/persona/${id_persona}`);
+    const { data: { data } } = await baseApi.get(`${endPointUrl}/pedidos/persona/${id_persona}`);
     return data;
 }
 
 export const showPedidoByIdDestinoFn = async (id_destino: number) => {
-    const { data } = await baseApi.get(`${endPointUrl}/pedidos/destino/${id_destino}`);
+    const { data: { data } } = await baseApi.get(`${endPointUrl}/pedidos/destino/${id_destino}`);
     return data;
 }
 
 export const createPedidoFn = async (payload: any) => {
-    const { data } = await baseApi.post(`${endPointUrl}/pedidos`, payload);
+    const { data: { data } } = await baseApi.post(`${endPointUrl}/pedidos`, payload);
     return data;
 }
 
@@ -43,26 +33,26 @@ export const createPedidoFn = async (payload: any) => {
 } */
 
 export const updatePedidoFn = async (id_pedido: number, payload: any) => {
-    const { data } = await baseApi.put(`${endPointUrl}/pedidos/${id_pedido}`, payload);
+    const { data: { data } } = await baseApi.put(`${endPointUrl}/pedidos/${id_pedido}`, payload);
     return data;
 }
 
 export const deletePedidoFn = async (id_pedido: number) => {
-    const { data } = await baseApi.delete(`${endPointUrl}/pedidos/${id_pedido}`);
+    const { data: { data } } = await baseApi.delete(`${endPointUrl}/pedidos/${id_pedido}`);
     return data;
 }
 
 export const payAbono = async (payload: any) => {
-    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-abono`, payload);
+    const { data: { data } } = await baseApi.post(`${endPointUrl}/pedidos/pago-abono`, payload);
     return data;
 }
 
 export const payPasarela = async (payload: any) => {
-    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-pasarela`, payload);
+    const { data: { data } } = await baseApi.post(`${endPointUrl}/pedidos/pago-pasarela`, payload);
     return data;
 }
 
 export const payMasivo = async (payload: any) => {
-    const { data } = await baseApi.post(`${endPointUrl}/pedidos/pago-masivo`, payload);
+    const { data: { data } } = await baseApi.post(`${endPointUrl}/pedidos/pago-masivo`, payload);
     return data;
 }

@@ -2,7 +2,8 @@ import { usePeriodoStore } from '@/stores/periodoStore'
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createPedidoFn, getMaterialesPersonaFn, getMaterialesIglesiaFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn, updatePedidoFn, deletePedidoFn } from '@/services/pedido.service';
+import { createPedidoFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn, updatePedidoFn, deletePedidoFn } from '@/services/pedido.service';
+import { getMaterialesPersonaFn, getMaterialesIglesiaFn } from '@/services/materiales.service';
 
 const usePedido = () => {
 
@@ -12,24 +13,11 @@ const usePedido = () => {
     const selectedPersona: any = ref(null);
     const materiales: any = ref([])
 
-
-    /*   function useGetPeriodos() {
-          const { data, isLoading, isPending, refetch, isRefetching } = useQuery({
-              queryKey: computed(() => ['periodos']),
-              queryFn: async () => {
-                  const data = await getPeriodosFn()
-                  return data
-              },
-              enabled: computed(() => true),
-          });
-          return { data, isLoading, isPending, refetch, isRefetching }
-      } */
-
     function useGetPeriodos() {
         const periodoStore = usePeriodoStore() // Instanciamos el store
 
         const query = useQuery({
-            queryKey: ['periodos'], // No necesitas computed si el key es estático
+            queryKey: ['periodos'],
             queryFn: async () => {
                 const data = await getPeriodosFn()
                 return data
