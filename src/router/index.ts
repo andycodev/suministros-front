@@ -13,6 +13,7 @@ import MaterialsView from '@/views/director/MaterialsView.vue'
 import ReportsView from '@/views/director/ReportsView.vue'
 import SettingsView from '@/views/director/SettingsView.vue'
 import MassivePaymentsView from '@/views/director/MassivePaymentsView.vue'
+import { getUserData } from '@/services/auth.service'
 
 const routes = [
   { path: '/order', component: OrderView },
@@ -87,7 +88,9 @@ const router = createRouter({
 // Guard de autenticación para rutas protegidas
 router.beforeEach((to, _from, next) => {
   if (to.meta.requiresAuth) {
-    const isAuthenticated = localStorage.getItem('isDirectorAuth') === 'true';
+    const userData = getUserData();
+    const isAuthenticated = !!userData && userData.is_director === true;
+
     if (!isAuthenticated) {
       next('/login');
     } else {
