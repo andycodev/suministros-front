@@ -40,6 +40,7 @@ const usePersona = () => {
         return data ? JSON.parse(data) : null;
     });
 
+
     /* Methods */
     function useGetIglesiaUnions() {
         const { data, isFetching } = useQuery({
@@ -112,10 +113,12 @@ const usePersona = () => {
     }
 
     function useGetPersonaById() {
+        console.log('userData.value?.user?.id_persona--->', userData.value?.user?.id_persona);
         const { data, isPending, refetch, isRefetching } = useQuery({
-            queryKey: computed(() => ['get-persona-by-id', userData.value?.id_persona]),
+            queryKey: computed(() => ['get-persona-by-id', userData.value?.user?.id_persona]),
             queryFn: async () => {
-                const data = await getPersonaByIdFn(userData.value?.id_persona);
+                const data = await getPersonaByIdFn(userData.value?.user?.id_persona);
+                console.log('data--->', data);
                 return data
             },
             enabled: computed(() => true),

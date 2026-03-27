@@ -11,7 +11,7 @@ const useMassivePayments = () => {
     /* Variables */
     //const queryClient: any = useQueryClient()
     const filters: any = ref({
-        id_persona: userData.value?.id_persona ?? null,
+        id_persona: userData.value?.user?.id_persona ?? null,
         estado: '',
     })
 
