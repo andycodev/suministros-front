@@ -8,11 +8,11 @@
                 </div>
                 <form @submit.prevent="handleLogin" class="space-y-4">
 
-                    <div v-if="isErrorLogin" class="alert alert-error shadow-lg py-2">
+                    <!--    <div v-if="isErrorLogin" class="alert alert-error shadow-lg py-2">
                         <span class="text-sm font-medium">
                             {{ errorLogin?.message || 'Error de credenciales' }}
                         </span>
-                    </div>
+                    </div> -->
 
                     <div class="form-control">
                         <label class="label"><span class="label-text font-semibold">Usuario</span></label>
@@ -47,8 +47,8 @@ const { useLogin } = useAuth();
 const { mutate: login, isPending: isPendingLogin, isError: isErrorLogin, error: errorLogin } = useLogin();
 
 const form: any = reactive({
-    email: 'juanperez@gmail.com',
-    password: '12345678'
+    email: 'director@admin.com',
+    password: 'director123'
 });
 
 const handleLogin = () => {

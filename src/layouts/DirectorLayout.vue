@@ -29,7 +29,8 @@
                 <div class="mb-6 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg shadow-md">
                     <div class="text-center">
                         <p class="text-xs text-primary-content/80 font-medium uppercase tracking-wider mb-1">Iglesia</p>
-                        <h3 class="text-lg font-bold text-primary-content uppercase">{{ userData?.iglesia }}</h3>
+                        <!-- <pre>{{ userData }}</pre> -->
+                        <h3 class="text-lg font-bold text-primary-content uppercase">{{ userData?.user?.iglesia }}</h3>
                     </div>
                 </div>
 
@@ -133,10 +134,10 @@
                         <!-- User info always visible -->
                         <div class="hidden sm:flex flex-col text-right leading-tight">
                             <span class="text-sm font-semibold text-base-content">
-                                {{ userData?.nombre }}
+                                {{ userData?.user?.name }}
                             </span>
                             <span class="text-xs text-base-content/60 truncate max-w-[160px]">
-                                {{ userData?.email }}
+                                {{ userData?.user?.email }}
                             </span>
                         </div>
 
