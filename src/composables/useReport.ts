@@ -8,10 +8,12 @@ import usePersona from '@/composables/usePersona';
 const useReport = () => {
 
     const { userData } = usePersona();
+
+    console.log('userData', userData.value);
     /* Variables */
     //const queryClient: any = useQueryClient()
     const filters: any = ref({
-        id_persona: userData.value?.id_persona ?? null,
+        id_persona: userData.value?.user?.id_persona ?? null,
         tipo: '',
         tipo_suscripcion: '',
         estado: '',

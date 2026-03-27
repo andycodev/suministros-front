@@ -7,10 +7,10 @@
                     <!-- <pre>{{ userData }}</pre> -->
                     <!-- <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Información del Pedido</h2> -->
 
-                    <div v-if="userData" class="p-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div v-if="userData?.user" class="p-4 mb-4 bg-blue-50 border border-blue-200 rounded-lg">
                         <h3 class="font-semibold text-blue-800 mb-2">Director de Publicaciones</h3>
                         <p class="text-sm text-blue-600">
-                            <strong>{{ userData.nombres }} {{ userData.ap_paterno }} {{ userData.ap_materno }}</strong>
+                            <strong>{{ userData?.user?.full_name }}</strong>
                         </p>
                         <p class="text-xs text-blue-500 mt-1">Creando pedido para su cuenta</p>
 
@@ -87,7 +87,8 @@
                     <div class="w-full max-w-3xl mx-auto space-y-3">
                         <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino || isDeletingPedido">Cargando
                             ...</div>
-                        <template v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.id_persona)">
+                        <template
+                            v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.user?.id_persona)">
                             <div class="max-w-4xl mx-auto p-6">
                                 <!-- Header -->
                                 <div class="card bg-base-100 shadow-xl mb-6 border border-base-300">
@@ -325,7 +326,7 @@
     </div>
 
     <!-- Director Login Button -->
-    <div v-if="!userData" class="fixed bottom-4 right-4 z-50">
+    <div v-if="!userData?.user" class="fixed bottom-4 right-4 z-50">
         <router-link to="/login" class="btn btn-primary btn-lg shadow-lg">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
                 stroke="currentColor">
@@ -369,9 +370,9 @@ const pedidoTipoIglesia = computed(() => {
 })
 
 const selectPersona = async () => {
-    if (!userData.value?.id_persona) return;
+    if (!userData.value?.user?.id_persona) return;
 
-    selectedPersona.value = userData.value;
+    selectedPersona.value = userData.value.user;
     searchQuery.value = '';
 
     // RESETEA LOS ESTADOS PARA NO DEJAR LA DATA ANTERIOR
@@ -448,10 +449,10 @@ const totalPrecio = computed(() =>
 );
 
 const pedidoPayload: any = computed(() => ({
-    id_persona: userData.value?.id_persona ?? null,
-    id_destino: userData.value?.id_persona ?? null,
+    id_persona: userData.value?.user?.id_persona ?? null,
+    id_destino: userData.value?.user?.id_persona ?? null,
     id_periodo: idPeriodoSeleccionado.value,
-    id_iglesia: userData.value?.id_iglesia ?? null,
+    id_iglesia: userData.value?.user?.id_iglesia ?? null,
     tipo: 'I',
     tipo_suscripcion: 'F',
     detalles: materiales.value
@@ -508,7 +509,7 @@ watch(isSuccessDeletePedido, (isSuccess) => {
 });
 
 watch(pedidoTipoIglesia, (nuevoPedido) => {
-    if (nuevoPedido === null && userData.value?.id_persona) {
+    if (nuevoPedido === null && userData.value?.user?.id_persona) {
         // No pedido exists for this period, reload materials
         refetchMaterialesIglesia();
     }
@@ -516,7 +517,7 @@ watch(pedidoTipoIglesia, (nuevoPedido) => {
 
 // Auto-load materials for director on component mount
 const initializeOrder = async () => {
-    if (userData.value?.id_persona) {
+    if (userData.value?.user?.id_persona) {
         await selectPersona();
     }
 };
@@ -619,7 +620,7 @@ const eliminarPedido = async () => {
         searchQuery.value = '';
 
         // Forzar recarga completa desde cero
-        if (userData.value?.id_persona) {
+        if (userData.value?.user?.id_persona) {
             // Esperar un poco y luego recargar todo
             setTimeout(async () => {
                 await selectPersona();
