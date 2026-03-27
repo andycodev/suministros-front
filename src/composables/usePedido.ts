@@ -2,8 +2,9 @@ import { usePeriodoStore } from '@/stores/periodoStore'
 import { ref, computed, watch } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { createPedidoFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, getPeriodosFn, updatePedidoFn, deletePedidoFn } from '@/services/pedido.service';
+import { createPedidoFn, showPedidoByIdPersonaFn, showPedidoByIdDestinoFn, updatePedidoFn, deletePedidoFn } from '@/services/pedido.service';
 import { getMaterialesPersonaFn, getMaterialesIglesiaFn } from '@/services/materiales.service';
+import { getPeriodosFn } from '@/services/setup.service';
 
 const usePedido = () => {
 

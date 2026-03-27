@@ -2,6 +2,11 @@ import baseApi from '@/api/baseApi';
 
 const endPointUrl = '/api/setup';
 
+export const getPeriodosFn = async () => {
+    const { data: { data } } = await baseApi.get(`${endPointUrl}/periodos`);
+    return data;
+}
+
 export const getIglesiaUnionsFn = async () => {
     const { data: { data } } = await baseApi.get(`${endPointUrl}/iglesia-unions`);
     return data;
