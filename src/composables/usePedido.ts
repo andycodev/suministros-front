@@ -44,6 +44,7 @@ const usePedido = () => {
                 const data = await getMaterialesPersonaFn()
                 return data
             },
+            meta: { show: true, text: 'Cargando materiales...' },
             enabled: computed(() => false),
         });
         return { data, isLoading, isPending, refetch, isRefetching }
@@ -56,6 +57,7 @@ const usePedido = () => {
                 const data = await getMaterialesIglesiaFn()
                 return data
             },
+            meta: { show: true, text: 'Cargando materiales...' },
             enabled: computed(() => false),
         });
         return { data, isLoading, isPending, refetch, isRefetching }
@@ -68,6 +70,7 @@ const usePedido = () => {
                 const data = await showPedidoByIdPersonaFn(selectedPersona.value?.id_persona)
                 return data
             },
+            meta: { show: true, text: 'Cargando pedido...' },
             enabled: computed(() => false),
         });
         return { data, isLoading, isPending, refetch, isRefetching }
@@ -80,6 +83,7 @@ const usePedido = () => {
                 const data = await showPedidoByIdDestinoFn(selectedPersona.value?.id_persona)
                 return data
             },
+            // meta: { show: true, text: 'Cargando pedido...' },
             enabled: computed(() => false),
         });
         return { data, isLoading, isPending, refetch, isRefetching }
