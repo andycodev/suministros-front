@@ -150,8 +150,11 @@
                             <ul tabindex="0"
                                 class="mt-3 p-2 shadow menu menu-compact dropdown-content bg-base-100 rounded-box w-52">
                                 <li>
-                                    <a @click="logout" class="text-error">
-                                        Cerrar sesión
+                                    <a @click="logout" class="text-error"
+                                        :class="{ 'opacity-50 cursor-not-allowed': isLogoutPending }">
+                                        <span v-if="isLogoutPending"
+                                            class="loading loading-spinner loading-xs mr-2"></span>
+                                        {{ isLogoutPending ? 'Cerrando sesión...' : 'Cerrar sesión' }}
                                     </a>
                                 </li>
                             </ul>
@@ -171,9 +174,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { useRouter, useRoute } from 'vue-router';
+import { useRoute } from 'vue-router';
 import { HomeIcon, UserIcon } from '@heroicons/vue/24/outline'
-import useAuth from '@/composables/useAuth';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 import { usePeriodoStore } from '@/stores/periodoStore'
@@ -185,19 +187,20 @@ const { idPeriodoSeleccionado, periodosStore } = storeToRefs(store)
 const { useGetPeriodos } = usePedido()
 const { isLoading } = useGetPeriodos()
 
+import useAuth from '@/composables/useAuth';
 const { useLogout } = useAuth();
 const { userData } = usePersona();
 
-const router = useRouter();
 const route = useRoute();
 
 const isActive = (path: string) => {
     return route.path === path;
 };
 
+const { mutate: logoutMutate, isPending: isLogoutPending } = useLogout();
+
 const logout = () => {
-    useLogout();
-    router.push('/login');
+    logoutMutate();
 };
 </script>
 

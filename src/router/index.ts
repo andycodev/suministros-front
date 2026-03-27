@@ -88,9 +88,17 @@ const router = createRouter({
 // Guard de autenticación para rutas protegidas
 router.beforeEach((to, _from, next) => {
   if (to.meta.requiresAuth) {
+    // Primero verificar si está autenticado (tiene token)
+    const token = localStorage.getItem('token');
+    if (!token) {
+      next('/login');
+      return;
+    }
+
+    // Luego verificar si es director
     const userData = getUserData();
     const isAuthenticated = !!userData && userData.is_director === true;
-
+    
     if (!isAuthenticated) {
       next('/login');
     } else {

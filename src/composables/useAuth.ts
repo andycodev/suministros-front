@@ -1,7 +1,7 @@
 import { ref, computed } from 'vue';
 import { useRouter } from 'vue-router';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/vue-query';
-import { loginFn } from '@/services/auth.service';
+import { loginFn, logoutFn } from '@/services/auth.service';
 
 const useAuth = () => {
 
@@ -11,7 +11,7 @@ const useAuth = () => {
     function useLogin() {
         const { mutate, isPending, isSuccess, isError, error } = useMutation({
             mutationKey: ['login'],
-            mutationFn: (payload) => loginFn(payload),
+            mutationFn: (payload: any) => loginFn(payload),
             // useAuth.ts
             onSuccess: (data) => {
                 localStorage.setItem('isDirectorAuth', 'true');
@@ -27,9 +27,14 @@ const useAuth = () => {
     }
 
     function useLogout() {
-        localStorage.removeItem('isDirectorAuth');
-        localStorage.removeItem('directorData');
-        router.push('/login');
+        const { mutate, isPending, isSuccess, isError, error } = useMutation({
+            mutationKey: ['logout'],
+            mutationFn: async () => await logoutFn(),
+            onSuccess: () => {
+                router.push('/login');
+            }
+        });
+        return { mutate, isPending, isSuccess, isError, error };
     }
 
     return {

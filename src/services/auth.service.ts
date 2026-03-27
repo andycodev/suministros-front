@@ -26,10 +26,11 @@ export const logoutFn = async () => {
         // Even if the logout request fails, clear local storage
         console.error('Logout request failed:', error);
     } finally {
-        // Clear stored token and user data
+        // Clear only authentication-related data
         localStorage.removeItem('token');
         localStorage.removeItem('userData');
         localStorage.removeItem('directorData');
+        localStorage.removeItem('isDirectorAuth');
     }
 }
 
