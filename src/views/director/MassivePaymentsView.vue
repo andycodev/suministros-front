@@ -161,7 +161,7 @@
                                             <span
                                                 class="text-[10px] text-base-content/40 font-bold uppercase">Total</span>
                                             <span class="font-bold text-sm">S/ {{ Number(pedido.total_monto).toFixed(2)
-                                                }}</span>
+                                            }}</span>
                                         </div>
                                     </div>
                                     <div v-if="pedido.total_pagado > 0"
@@ -176,7 +176,7 @@
                                             <span class="text-error font-medium">Saldo:</span>
                                             <span class="text-error font-bold font-mono text-[11px]">S/ {{
                                                 Number(pedido.saldo_pendiente).toFixed(2)
-                                            }}</span>
+                                                }}</span>
                                         </div>
                                         <span class="text-[9px] text-base-content/40 italic">
                                             {{ pedido.pagos.length }} {{ pedido.pagos.length === 1 ? 'abono' :
@@ -483,15 +483,19 @@ const processMassivePayment = async () => {
 
         // Limpiar selección y cerrar modal
         selectedPedidos.value = [];
+        selectedPedidosData.value = [];
         closeMassivePaymentModal();
 
-        // Refrescar datos
-        refetch();
-        // Aquí podrías agregar una notificación de éxito
+        // Invalidar cache y forzar recarga completa
+        await refetch();
+
+        // Forzar actualización de estado reactivo
+        setTimeout(() => {
+            refetch();
+        }, 500);
 
     } catch (error) {
         console.error('Error en pago masivo:', error);
-        // Aquí podrías agregar una notificación de error
     } finally {
         isProcessing.value = false;
     }

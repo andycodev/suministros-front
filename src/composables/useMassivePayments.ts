@@ -25,6 +25,7 @@ const useMassivePayments = () => {
                 return data
             },
             enabled: computed(() => true),
+            staleTime: 1000 * 60 * 1, // 1 minuto
         });
         return { data, isPending, refetch, isRefetching }
     }

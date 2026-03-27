@@ -154,7 +154,7 @@
                                             <span
                                                 class="text-[10px] text-base-content/40 font-bold uppercase">Total</span>
                                             <span class="font-bold text-sm">S/ {{ Number(pedido.total_monto).toFixed(2)
-                                            }}</span>
+                                                }}</span>
                                         </div>
 
                                         <div v-if="pedido.total_pagado > 0"
@@ -169,7 +169,7 @@
                                                 <span class="text-error font-medium">Saldo:</span>
                                                 <span class="text-error font-bold font-mono text-[11px]">S/ {{
                                                     Number(pedido.saldo_pendiente).toFixed(2)
-                                                }}</span>
+                                                    }}</span>
                                             </div>
                                             <span class="text-[9px] text-base-content/40 italic">
                                                 {{ pedido.pagos.length }} {{ pedido.pagos.length === 1 ? 'abono' :
@@ -299,8 +299,13 @@ const closeModal = (cancel: any) => {
     console.log('cancelar', cancel);
 };
 
-const handlePagoExitoso = () => {
+const handlePagoExitoso = async () => {
     // Refrescar los datos de la tabla
-    refetchMisPedidos();
+    await refetchMisPedidos();
+
+    // Forzar actualización de estado reactivo
+    setTimeout(() => {
+        refetchMisPedidos();
+    }, 500);
 };
 </script>
