@@ -66,7 +66,7 @@
         </div>
 
         <!-- CARD PRINCIPAL -->
-        <div class="card bg-base-100 shadow-md border border-base-300">
+        <div v-if="!isLoadingPedidoDetail" class="card bg-base-100 shadow-md border border-base-300">
             <div class="card-body space-y-6">
                 <!-- ALERTA -->
                 <div role="alert" class="alert alert-info alert-outline">
@@ -224,7 +224,7 @@ import BadgeTipoPedido from '@/components/shared/BadgeTipoPedido.vue';
 
 const router = useRouter();
 const { useShowPedidoByIdPedidoFn } = usePay()
-const { data: pedidoDetail } = useShowPedidoByIdPedidoFn()
+const { data: pedidoDetail, isPending: isLoadingPedidoDetail } = useShowPedidoByIdPedidoFn()
 
 // Estados para el modal de tarjeta
 const showCardModal = ref(false);

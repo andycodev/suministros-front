@@ -15,6 +15,7 @@ const usePay = () => {
                 const data = await showPedidoByIdPedidoFn(Number(idPedido.value))
                 return data
             },
+            meta: { show: true, text: 'Cargando información del pedido ...' },
             enabled: computed(() => true),
         });
         return { data, isLoading, isPending, refetch, isRefetching }

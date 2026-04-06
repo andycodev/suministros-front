@@ -12,7 +12,7 @@ export interface ApiResponse<T = any> {
 
 const baseApi: AxiosInstance = axios.create({
     baseURL: import.meta.env.VITE_BASE_API_URL as string,
-    timeout: 30000, // 30 seconds para evitar timeout, por defecto es 10000
+    timeout: 30000,
     headers: {
         'Content-Type': 'application/json',
         'Accept': 'application/json',
@@ -35,99 +35,60 @@ baseApi.interceptors.request.use(
 baseApi.interceptors.response.use(
     (response: AxiosResponse) => {
         const method = response.config.method?.toLowerCase() || '';
-        let message = '';
-        let notificationType: 'alert-success' | 'alert-error' | 'alert-warning' | 'alert-info' = 'alert-info';
+        const { success, message } = response.data;
 
-        // Prefer server message
-        if (response.data?.message) {
-            message = response.data.message;
-        } else {
-            switch (method) {
-                case 'post':
-                    message = 'Operación exitosa.';
-                    break;
-                case 'put':
-                case 'patch':
-                    message = 'Actualización exitosa.';
-                    break;
-                case 'delete':
-                    message = 'Eliminación exitosa.';
-                    break;
-            }
+        // --- MANEJO DE ÉXITO (VERDE) ---
+        // Si el servidor confirma éxito y NO es un GET, mostramos notificación verde.
+        if (success && message && method !== 'get') {
+            showNotification(message, 'alert-success');
         }
-
-        // Determine notification type based on data.success
-        if (response.data?.success !== undefined) {
-            notificationType = response.data.success ? 'alert-success' : 'alert-error';
-        } else if (method !== 'get' && message) {
-            notificationType = 'alert-success';
-        }
-
-        // Show notification for non-GET requests or when there's a message
-        if ((method !== 'get' || response.data?.message) && message) {
-            showNotification(message, notificationType);
+        // Caso especial: El servidor no envía success pero es una operación exitosa.
+        else if (method !== 'get' && message) {
+            showNotification(message, 'alert-success');
         }
 
         return response;
     },
-    // (error) => Promise.reject(error) // Comentado para evitar error de timeout, descomentar si se desea que el timeout sea manejado por axios
     (error) => {
-        // Handle timeout errors
+        // 1. Handle timeout errors (ROJO)
         if (error.code === 'ECONNABORTED') {
-            showNotification('La base de datos tardó demasiado en responder. Intenta nuevamente.', 'alert-error');
+            showNotification('La base de datos tardó demasiado en responder.', 'alert-error');
             return Promise.reject(error);
         }
 
-        // Handle API response errors
+        // 2. Handle API response errors
         if (error.response) {
             const status = error.response.status;
             const data = error.response.data;
 
-            // Validation errors (422)
-            if (status === 422 && data.message) {
+            // --- AMARILLO: VALIDACIONES (422) ---
+            // Aquí capturamos el mensaje que configuramos en Laravel (firstError)
+            if (status === 422) {
+                showNotification(data.message || 'Verifica los datos ingresados.', 'alert-warning');
+                return Promise.reject(error);
+            }
+
+            // --- ROJO: ERRORES CRÍTICOS O DE SISTEMA ---
+            if (status === 401) {
+                showNotification('Sesión expirada. Inicia sesión nuevamente.', 'alert-error');
+            }
+            else if (status === 403) {
+                showNotification(data.message || 'No tienes permisos para esto.', 'alert-error');
+            }
+            else if (status >= 500) {
+                // Error de servidor (500, 503, etc.) siempre Rojo
+                showNotification(data.message || 'Error interno del servidor.', 'alert-error');
+            }
+            else if (data?.message) {
+                // Cualquier otro error con mensaje (400, 404, etc.)
                 showNotification(data.message, 'alert-error');
-                return Promise.reject(error);
             }
-
-            // Other server errors with custom message
-            if (data?.message) {
-                const isServerError = status >= 500;
-                showNotification(data.message, isServerError ? 'alert-warning' : 'alert-error');
-                return Promise.reject(error);
-            }
-
-            // Generic HTTP errors
-            let errorMessage = '';
-            let errorType: 'alert-error' | 'alert-warning' = 'alert-error';
-
-            switch (status) {
-                case 400:
-                    errorMessage = 'Solicitud incorrecta.';
-                    break;
-                case 401:
-                    errorMessage = 'No autorizado. Inicia sesión nuevamente.';
-                    break;
-                case 403:
-                    errorMessage = 'Acceso denegado.';
-                    break;
-                case 404:
-                    errorMessage = 'Recurso no encontrado.';
-                    break;
-                case 500:
-                    errorMessage = 'Error del servidor.';
-                    errorType = 'alert-warning';
-                    break;
-                default:
-                    errorMessage = `Error ${status}: ${error.response.statusText}`;
-                    errorType = status >= 500 ? 'alert-warning' : 'alert-error';
-            }
-            showNotification(errorMessage, errorType);
         }
-        // Handle network errors
+        // 3. Handle network errors (ROJO)
         else if (error.request) {
             showNotification('Error de conexión. Verifica tu internet.', 'alert-error');
         }
-        // Handle other errors
+        // 4. Otros errores inesperados (ROJO)
         else {
             showNotification('Ocurrió un error inesperado.', 'alert-error');
         }
