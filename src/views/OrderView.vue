@@ -6,12 +6,12 @@
         <div class="col-span-1 space-y-5 p-6 bg-gray-50 border-r border-gray-100 md:border-gray-200">
           <h2 class="text-2xl font-bold text-gray-800 border-b pb-2 mb-4">Filtros de Búsqueda</h2>
 
-          <div class="mb-4">
+          <!--     <div class="mb-4">
             <span class="label-text text-sm font-medium text-gray-600">Periodo: </span>
             <span class="font-bold text-primary">{{ isLoadingPeriodos ? 'Cargando periodo ...' :
               store.periodoPredeterminado?.nombre }}</span>
           </div>
-
+ -->
           <fieldset class="form-control w-full">
             <label class="label"><span class="label-text text-sm font-medium text-gray-600">Unión</span></label>
             <select v-model="filters.id_union" @change="setUnion(filters.id_union)"
@@ -151,20 +151,10 @@
 
     <!-- Director Login Button -->
     <div class="fixed bottom-4 right-4 z-50">
-      <router-link v-if="!isDirectorAuthenticated" to="/login" class="btn btn-primary btn-lg shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
-        </svg>
+      <router-link v-if="!isDirectorAuthenticated" to="/login" class="btn btn-neutral btn-md shadow-lg">
         Iniciar sesión como director de publicaciones
       </router-link>
-      <router-link v-else to="/director/dashboard" class="btn btn-success btn-lg shadow-lg">
-        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24"
-          stroke="currentColor">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M10 6H5a2 2 0 00-2 2v9a2 2 0 002 2h14a2 2 0 002-2V8a2 2 0 00-2-2h-5m-4 0V5a2 2 0 114 0v1m-4 0a2 2 0 104 0m-5 8a2 2 0 100-4 2 2 0 000 4zm0 0c1.306 0 2.417.835 2.83 2M9 14a3.001 3.001 0 00-2.83 2M15 11h3m-3 4h2" />
-        </svg>
+      <router-link v-else to="/director/dashboard" class="btn btn-success btn-md shadow-lg">
         Diríjase al panel de director de publicaciones
       </router-link>
     </div>
@@ -173,8 +163,8 @@
 
 <script setup lang="ts">
 import { ref, computed, watch, onMounted } from 'vue';
-import { usePeriodoStore } from '@/stores/periodoStore'
-import { storeToRefs } from 'pinia'
+import { usePeriodoStore } from '@/stores/periodoStore';
+import { storeToRefs } from 'pinia';
 import usePersona from '@/composables/usePersona';
 import usePedido from '@/composables/usePedido';
 

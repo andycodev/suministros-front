@@ -85,11 +85,11 @@
                         </div>
                     </div>
                     <div class="w-full max-w-3xl mx-auto space-y-3">
-                        <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino || isDeletingPedido">Cargando
-                            ...</div>
+                        <!--  <div v-if="isLoadingMaterialesIglesia || isLoadingPedidoDestino || isDeletingPedido">Cargando
+                            ...</div> -->
                         <template
                             v-if="pedidoTipoIglesia && (pedidoTipoIglesia?.id_destino === userData?.user?.id_persona)">
-                            <div class="max-w-4xl mx-auto p-6">
+                            <div v-if="!isLoadingPedidoDestino" class="max-w-4xl mx-auto p-6">
                                 <!-- Header -->
                                 <div class="card bg-base-100 shadow-xl mb-6 border border-base-300">
                                     <div class="card-body">
