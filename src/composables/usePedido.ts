@@ -83,7 +83,7 @@ const usePedido = () => {
                 const data = await showPedidoByIdDestinoFn(selectedPersona.value?.id_persona)
                 return data
             },
-            meta: { show: true, text: 'Cargando información del pedido...' },
+            meta: { show: true, text: 'Cargando información ...' },
             enabled: computed(() => false),
         });
         return { data, isLoading, isPending, refetch, isRefetching }
@@ -119,7 +119,8 @@ const usePedido = () => {
                     router.push(`${basePath}/${id_pedido}`);
                 }
                 return data;
-            }
+            },
+            meta: { show: true, text: 'Creando pedido ...' },
         });
         return { mutate, isPending, isSuccess, isError };
     }

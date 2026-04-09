@@ -24,6 +24,7 @@
                         </option>
                     </select>
                 </div>
+                <br>
                 <!-- Church Name Header -->
 
                 <div class="mb-6 p-3 bg-gradient-to-r from-primary to-primary/80 rounded-lg shadow-md">
@@ -60,7 +61,7 @@
                             <span>Realizar Pedido</span>
                         </router-link>
                     </li>
-                    <li>
+                    <!--      <li>
                         <router-link to="/director/materials" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/materials') }">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -70,7 +71,7 @@
                             </svg>
                             <span>Materiales</span>
                         </router-link>
-                    </li>
+                    </li> -->
                     <li>
                         <router-link to="/director/reports" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/reports') }">
@@ -93,7 +94,7 @@
                             <span>Pagos Masivos</span>
                         </router-link>
                     </li>
-                    <li>
+                    <!--      <li>
                         <router-link to="/director/settings" class="flex items-center space-x-3"
                             :class="{ 'active': isActive('/director/settings') }">
                             <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" fill="none" viewBox="0 0 24 24"
@@ -105,7 +106,7 @@
                             </svg>
                             <span>Configuración</span>
                         </router-link>
-                    </li>
+                    </li> -->
                 </ul>
             </div>
 

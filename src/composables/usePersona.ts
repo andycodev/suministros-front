@@ -120,6 +120,7 @@ const usePersona = () => {
                 return data
             },
             enabled: computed(() => true),
+            meta: { show: true, text: 'Cargando información ...' },
         });
         return { data, isPending, refetch, isRefetching }
     }
